@@ -12,8 +12,8 @@ app.use(express.static('public'));
 
 // ==================== Jellyfish Corporation Config ====================
 const BRAND = 'JELLYFISH CORPORATION';
-const BIN_ID = "6a4a4093da38895dfe308bce";
-const MASTER_KEY = "$2a$10$.RcKXMc3hf6EKGiPXnfcOO8SvtAA0udmTn6R1JKHgObMMFDqvraIW";
+const BIN_ID = "6aa28fa0ac6210605abc4609";
+const MASTER_KEY = "$2a$10$Cch39u0jy6/Z7kvHMmdvb.tV/0ZkXCXvVeLy1rhWoyevc.yXX3YUq";
 const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 
 const SESSION_TTL_MS = 24 * 60 * 60 * 1000;
