@@ -1,0 +1,18 @@
+{
+  "name": "jellyfish-corporation-auth",
+  "version": "4.0.0",
+  "description": "Jellyfish Corporation Premium Authorization System",
+  "main": "server.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  },
+  "author": "Jellyfish Corporation",
+  "license": "ISC"
+}

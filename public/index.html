@@ -1,0 +1,1961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JELLYFISH CORPORATION · Premium Auth</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪼</text></svg>" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    /* ============ PREMIUM BLACK & WHITE THEME ============ */
+    :root{
+      --bg-void:#000000;
+      --bg-primary:#040406;
+      --bg-secondary:#0c0c0f;
+      --bg-card:rgba(16,16,20,0.62);
+      --bg-card-solid:rgba(13,13,16,0.95);
+      --hairline:rgba(255,255,255,0.07);
+      --hairline-strong:rgba(255,255,255,0.14);
+      --text-primary:#f5f5f7;
+      --text-secondary:#a3a3ab;
+      --text-muted:#5c5c66;
+      --accent:#ffffff;
+      --accent-dim:#bdbdbd;
+      --accent-deep:#2a2a2a;
+      --accent-glow:rgba(255,255,255,0.45);
+      --silver:#c9c9c9;
+      /* Bioluminescent jellyfish accents — used sparingly over the mono base */
+      --bio-cyan:#7ee8f0;
+      --bio-violet:#b9a3f5;
+      --bio-cyan-dim:rgba(126,232,240,0.5);
+      --bio-violet-dim:rgba(185,163,245,0.5);
+      --radius-lg:20px;
+      --radius:14px;
+      --radius-sm:10px;
+      --ease:cubic-bezier(0.16,1,0.3,1);
+      --ease-soft:cubic-bezier(0.4,0,0.2,1);
+      --ease-spring:cubic-bezier(0.34,1.56,0.64,1);
+      --mono:'JetBrains Mono',monospace;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html,body{background:var(--bg-primary);}
+    body{
+      font-family:'Space Grotesk',sans-serif;
+      color:var(--text-primary);
+      min-height:100vh;
+      overflow-x:hidden;
+      position:relative;
+    }
+    body::before{
+      content:'';position:fixed;inset:-10%;z-index:0;pointer-events:none;
+      background-image:
+        radial-gradient(ellipse 900px 600px at 15% 8%, rgba(126,232,240,0.075) 0%, transparent 60%),
+        radial-gradient(ellipse 800px 700px at 90% 18%, rgba(185,163,245,0.06) 0%, transparent 55%),
+        radial-gradient(ellipse 1000px 800px at 50% 112%, rgba(255,255,255,0.045) 0%, transparent 62%),
+        radial-gradient(ellipse 700px 500px at 8% 95%, rgba(126,232,240,0.05) 0%, transparent 58%);
+      background-repeat:no-repeat;
+      will-change:transform,opacity;
+      animation:cloudDrift 26s ease-in-out infinite alternate;
+    }
+    @keyframes cloudDrift{
+      0%{transform:translate3d(0,0,0) scale(1);opacity:0.85;}
+      50%{transform:translate3d(1.5%,-1.5%,0) scale(1.04);opacity:1;}
+      100%{transform:translate3d(-1.5%,1%,0) scale(1.02);opacity:0.92;}
+    }
+    @keyframes bgDrift{0%{opacity:0.8;}100%{opacity:1;}}
+    body::after{
+      content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.28;
+      background-image:linear-gradient(rgba(255,255,255,0.014) 1px, transparent 1px),
+                       linear-gradient(90deg, rgba(255,255,255,0.014) 1px, transparent 1px);
+      background-size:44px 44px;
+      mask-image:radial-gradient(ellipse 70% 60% at 50% 20%, black 20%, transparent 78%);
+    }
+    #particleCanvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.75;}
+    @media (prefers-reduced-motion: reduce){ body::before{animation:none;} }
+    #scanlineLayer{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;opacity:0.4;}
+    #scanlineLayer::before{content:'';position:absolute;left:0;right:0;height:120px;top:-120px;
+      background:linear-gradient(180deg,transparent,rgba(255,255,255,0.05),transparent);
+      animation:scanMove 8s linear infinite;}
+    ::-webkit-scrollbar{width:8px;}
+    ::-webkit-scrollbar-track{background:var(--bg-primary);}
+    ::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--bio-cyan),#666,#222);border-radius:10px;}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
+    @keyframes floatSlow{0%,100%{transform:translateY(0) rotate(0);}50%{transform:translateY(-10px) rotate(1.2deg);}}
+    @keyframes pulseGlowW{0%,100%{box-shadow:0 0 22px rgba(255,255,255,0.18),0 0 0 0 rgba(255,255,255,0);}50%{box-shadow:0 0 48px rgba(255,255,255,0.42),0 0 0 8px rgba(255,255,255,0.03);}}
+    @keyframes ringSpin{to{transform:rotate(360deg);}}
+    @keyframes drawBar{from{width:100%;}to{width:0%;}}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    @keyframes toastIn{from{opacity:0;transform:translateX(60px) scale(0.95);}to{opacity:1;transform:translateX(0) scale(1);}}
+    @keyframes gradientShine{0%{background-position:0% 50%;}50%{background-position:100% 50%;}100%{background-position:0% 50%;}}
+    @keyframes borderTravel{0%{background-position:220% 0;}100%{background-position:-220% 0;}}
+    @keyframes ringPulse{0%{transform:scale(0.8);opacity:0.9;}100%{transform:scale(1.7);opacity:0;}}
+    @keyframes scanMove{0%{transform:translateY(-120px);}100%{transform:translateY(100vh);}}
+    @keyframes rippleAnim{to{transform:scale(3.2);opacity:0;}}
+    @keyframes blinkCursor{0%,100%{opacity:1;}50%{opacity:0;}}
+    @keyframes badgePulse{
+      0%{box-shadow:0 0 12px rgba(var(--pulse-rgb,255,255,255),0.7),0 0 0 0 rgba(var(--pulse-rgb,255,255,255),0.45);}
+      70%{box-shadow:0 0 12px rgba(var(--pulse-rgb,255,255,255),0.7),0 0 0 8px rgba(var(--pulse-rgb,255,255,255),0);}
+      100%{box-shadow:0 0 12px rgba(var(--pulse-rgb,255,255,255),0.7),0 0 0 0 rgba(var(--pulse-rgb,255,255,255),0);}
+    }
+    @keyframes jellyBob{0%,100%{transform:translateY(0) scale(1);}50%{transform:translateY(-6px) scale(1.03);}}
+    @keyframes tentacleWave{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(3px) rotate(2deg);}}
+
+    .app-wrapper{position:relative;z-index:1;max-width:1280px;margin:0 auto;padding:22px 24px 48px;min-height:100vh;display:flex;flex-direction:column;}
+
+    /* ============ Header ============ */
+    .brand-header{display:flex;align-items:center;justify-content:space-between;padding:14px 4px 26px;border-bottom:1px solid var(--hairline);flex-wrap:wrap;gap:16px;position:relative;}
+    .brand-header::after{content:'';position:absolute;bottom:-1px;left:0;width:140px;height:1px;
+      background:linear-gradient(90deg,#fff,transparent);}
+    .brand{display:flex;align-items:center;gap:14px;text-decoration:none;color:inherit;}
+    .brand-icon{width:52px;height:52px;border-radius:50%;background:radial-gradient(circle at 35% 30%, #2a2a2a 0%, #0a0a0a 70%, #000 100%);
+      display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;
+      border:1px solid rgba(255,255,255,0.12);animation:pulseGlowW 3.4s infinite;}
+    .brand-icon::before{content:'';position:absolute;inset:-3px;border-radius:50%;
+      background:conic-gradient(from 0deg,var(--bio-cyan),transparent 30%,transparent 70%,var(--bio-violet),var(--bio-cyan));
+      -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#000 calc(100% - 1px));
+      mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#000 calc(100% - 1px));
+      opacity:0.65;animation:ringSpin 12s linear infinite;}
+    .brand-icon .badge{position:absolute;top:-3px;right:-3px;width:14px;height:14px;background:var(--bio-cyan);
+      border-radius:50%;border:2px solid var(--bg-primary);--pulse-rgb:126,232,240;animation:badgePulse 2.6s infinite;}
+    .jelly-logo-svg{width:100%;height:100%;overflow:visible;display:block;padding:8px;}
+    .jelly-bell{animation:jellyBob 4.5s ease-in-out infinite;transform-origin:50px 40px;}
+    .jelly-tent{animation:tentacleWave 3.6s ease-in-out infinite;transform-origin:top center;}
+    .jelly-tent:nth-child(2){animation-delay:0.3s;}
+    .jelly-tent:nth-child(3){animation-delay:0.6s;}
+    .jelly-tent:nth-child(4){animation-delay:0.9s;}
+    .jelly-tent:nth-child(5){animation-delay:1.2s;}
+    .brand-text .main{font-family:'Orbitron',sans-serif;font-weight:900;font-size:20px;letter-spacing:2.5px;
+      background:linear-gradient(120deg,#fff 25%,#777 55%,#fff 85%);
+      background-size:220% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+      animation:gradientShine 6s ease infinite;display:block;}
+    .brand-text .sub{font-family:'Orbitron',sans-serif;font-weight:500;font-size:9px;letter-spacing:4px;
+      color:var(--text-muted);text-transform:uppercase;display:block;margin-top:2px;}
+    .brand-text .sub span{color:#fff;}
+    .header-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+
+    /* ============ Buttons ============ */
+    .btn{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:8px;
+      padding:11px 24px;border:none;border-radius:var(--radius-sm);
+      font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;cursor:pointer;
+      transition:transform .25s var(--ease),box-shadow .25s var(--ease),background .25s var(--ease);
+      text-decoration:none;background:transparent;color:var(--text-primary);
+      border:1px solid var(--hairline-strong);isolation:isolate;}
+    .btn:active{transform:scale(0.97);}
+    .btn .ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,0.35);
+      transform:scale(0);animation:rippleAnim .6s ease-out forwards;pointer-events:none;z-index:0;}
+    .btn-primary{background:linear-gradient(135deg,#fff,#e2e2e2 45%,#bdbdbd);background-size:180% 180%;color:#000;border-color:transparent;
+      box-shadow:0 4px 24px rgba(255,255,255,0.15);font-weight:700;transition:transform .25s var(--ease-spring),box-shadow .25s var(--ease-soft),background-position .5s var(--ease-soft);}
+    .btn-primary:hover{box-shadow:0 10px 38px rgba(255,255,255,0.32),0 0 24px -6px rgba(126,232,240,0.25);transform:translateY(-2px);background-position:100% 100%;}
+    .btn-primary::before{content:'';position:absolute;inset:0;border-radius:inherit;opacity:0;
+      background:linear-gradient(120deg,transparent 30%,rgba(126,232,240,0.35),rgba(185,163,245,0.35),transparent 70%);
+      transition:opacity .3s;pointer-events:none;}
+    .btn-primary:hover::before{opacity:1;}
+    .btn-silver{background:linear-gradient(135deg,#3a3a3a,#1a1a1a);color:#fff;border-color:rgba(255,255,255,0.14);font-weight:700;}
+    .btn-silver:hover{background:linear-gradient(135deg,#4a4a4a,#252525);box-shadow:0 8px 30px rgba(255,255,255,0.14);transform:translateY(-1px);}
+    .btn-outline{background:rgba(255,255,255,0.02);}
+    .btn-outline:hover{background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.22);}
+    .btn-sm{padding:7px 16px;font-size:12.5px;}
+    .btn-xs{padding:5px 12px;font-size:11px;border-radius:7px;}
+    .btn-icon{padding:7px 10px;}
+    .btn-danger{background:rgba(255,110,90,0.1);color:#ffb3a3;border-color:rgba(255,110,90,0.28);}
+    .btn-danger:hover{background:rgba(255,110,90,0.18);box-shadow:0 8px 26px -10px rgba(255,110,90,0.35);transform:translateY(-1px);}
+    .btn-success{background:rgba(126,232,240,0.1);color:#a8ecf2;border-color:rgba(126,232,240,0.28);}
+    .btn-success:hover{background:rgba(126,232,240,0.18);box-shadow:0 8px 26px -10px rgba(126,232,240,0.35);transform:translateY(-1px);}
+    .btn-block{width:100%;justify-content:center;}
+    .btn[disabled]{opacity:0.5;cursor:not-allowed;transform:none !important;}
+
+    /* ============ Cards ============ */
+    .card{position:relative;background:var(--bg-card);border:1px solid var(--hairline);
+      border-radius:var(--radius-lg);padding:30px 32px;
+      backdrop-filter:blur(22px) saturate(140%);-webkit-backdrop-filter:blur(22px) saturate(140%);
+      box-shadow:0 20px 60px -20px rgba(0,0,0,0.8);
+      transition:border-color .35s var(--ease-soft),box-shadow .35s var(--ease-soft),transform .35s var(--ease-soft);
+      overflow:hidden;}
+    .card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+      background:linear-gradient(90deg,transparent,rgba(126,232,240,0.7),rgba(255,255,255,0.95),rgba(185,163,245,0.7),transparent 80%);
+      background-size:260% 100%;opacity:0.55;animation:borderTravel 6s linear infinite;will-change:background-position;}
+    .card::after{content:'';position:absolute;top:-50%;left:-60%;width:40%;height:200%;
+      background:linear-gradient(120deg,transparent,rgba(255,255,255,0.06),transparent);
+      transform:rotate(20deg);transition:left .9s var(--ease);pointer-events:none;}
+    .card:hover::after{left:130%;}
+    .card:hover{border-color:rgba(255,255,255,0.2);transform:translateY(-4px);
+      box-shadow:0 28px 76px -18px rgba(0,0,0,0.88),0 0 46px -12px rgba(126,232,240,0.1),0 0 30px -14px rgba(185,163,245,0.1);}
+    .card-glow{border-color:rgba(255,255,255,0.12);box-shadow:0 0 50px -10px rgba(255,255,255,0.06),0 20px 60px -20px rgba(0,0,0,0.8);}
+    .card-title{font-family:'Orbitron',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.4px;
+      margin-bottom:6px;display:flex;align-items:center;gap:10px;color:#fff;}
+    .card-title .icon{color:#fff;font-size:18px;filter:drop-shadow(0 0 8px rgba(255,255,255,0.5));}
+    .card-sub{font-size:13px;color:var(--text-muted);margin-bottom:22px;line-height:1.5;}
+
+    .hud-corner{position:absolute;width:16px;height:16px;border-color:rgba(255,255,255,0.55);
+      pointer-events:none;filter:drop-shadow(0 0 5px rgba(255,255,255,0.4));z-index:2;}
+    .hud-corner.tl{top:10px;left:10px;border-top:2px solid;border-left:2px solid;}
+    .hud-corner.tr{top:10px;right:10px;border-top:2px solid;border-right:2px solid;}
+    .hud-corner.bl{bottom:10px;left:10px;border-bottom:2px solid;border-left:2px solid;}
+    .hud-corner.br{bottom:10px;right:10px;border-bottom:2px solid;border-right:2px solid;}
+
+    /* ============ Form ============ */
+    .form-group{margin-bottom:18px;}
+    .form-group label{display:block;font-size:12px;font-weight:600;color:var(--text-secondary);
+      margin-bottom:6px;letter-spacing:0.5px;text-transform:uppercase;}
+    .form-control{width:100%;padding:13px 16px;background:rgba(255,255,255,0.035);
+      border:1px solid var(--hairline-strong);border-radius:var(--radius-sm);color:var(--text-primary);
+      font-family:'Space Grotesk',sans-serif;font-size:14px;
+      transition:border-color .25s var(--ease-soft),box-shadow .25s var(--ease-soft),background .25s var(--ease-soft);
+      outline:none;}
+    .form-control:focus{border-color:var(--bio-cyan);box-shadow:0 0 0 4px rgba(126,232,240,0.12);background:rgba(255,255,255,0.055);}
+    .form-control::placeholder{color:var(--text-muted);font-size:13px;}
+    .input-icon-group{position:relative;}
+    .input-icon-group i{position:absolute;left:14px;top:50%;transform:translateY(-50%);
+      color:var(--text-muted);font-size:13px;pointer-events:none;transition:color .25s;}
+    .input-icon-group .form-control{padding-left:38px;}
+    .input-icon-group .form-control:focus ~ i{color:var(--bio-cyan);}
+
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+    .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:26px;}
+    .stat-item{position:relative;background:rgba(255,255,255,0.025);border:1px solid var(--hairline);
+      border-radius:var(--radius-sm);padding:18px 20px;text-align:center;overflow:hidden;
+      transition:border-color .3s,transform .3s var(--ease-spring),box-shadow .3s;
+      animation:fadeUp .5s var(--ease) both;}
+    .stat-item:nth-child(1){animation-delay:.02s;} .stat-item:nth-child(2){animation-delay:.07s;}
+    .stat-item:nth-child(3){animation-delay:.12s;} .stat-item:nth-child(4){animation-delay:.17s;}
+    .stat-item:nth-child(5){animation-delay:.22s;} .stat-item:nth-child(6){animation-delay:.27s;}
+    .stat-item::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;transform:scaleX(0);
+      transform-origin:left;transition:transform .4s var(--ease-soft);
+      background:linear-gradient(90deg,var(--bio-cyan),var(--bio-violet));}
+    .stat-item:hover::before{transform:scaleX(1);}
+    .stat-item:hover{border-color:rgba(255,255,255,0.22);transform:translateY(-3px);
+      box-shadow:0 12px 32px -12px rgba(126,232,240,0.16),0 12px 32px -12px rgba(185,163,245,0.1);}
+    .stat-item .label{font-size:10.5px;text-transform:uppercase;letter-spacing:1.3px;color:var(--text-muted);font-weight:600;}
+    .stat-item .value{font-family:'Orbitron',sans-serif;font-size:18px;font-weight:700;
+      margin-top:6px;color:#fff;word-break:break-all;}
+    .stat-item .copy-mini{position:absolute;top:8px;right:8px;background:rgba(255,255,255,0.05);
+      border:1px solid var(--hairline-strong);color:var(--text-muted);border-radius:6px;
+      width:22px;height:22px;font-size:10px;display:flex;align-items:center;justify-content:center;
+      cursor:pointer;transition:all .2s;}
+    .stat-item .copy-mini:hover{color:#fff;border-color:rgba(255,255,255,0.4);}
+
+    .badge-status{display:inline-flex;align-items:center;gap:7px;padding:5px 16px;border-radius:100px;
+      font-size:11.5px;font-weight:700;letter-spacing:0.6px;font-family:'Orbitron',sans-serif;}
+    .badge-status.active{background:linear-gradient(135deg,rgba(126,232,240,0.14),rgba(185,163,245,0.14));color:#fff;
+      border:1px solid rgba(255,255,255,0.24);--pulse-rgb:126,232,240;animation:badgePulse 2.6s infinite;}
+    .badge-status.active .dot{background:var(--bio-cyan);box-shadow:0 0 8px var(--bio-cyan-dim);}
+    .badge-status.inactive{background:rgba(255,255,255,0.03);color:var(--text-muted);border:1px solid var(--hairline-strong);}
+    .badge-status .dot{width:7px;height:7px;border-radius:50%;display:inline-block;background:currentColor;}
+
+    .table-wrap{overflow-x:auto;margin-top:14px;}
+    table{width:100%;border-collapse:collapse;font-size:13px;}
+    table th{text-align:left;padding:12px 14px;color:var(--text-muted);font-weight:700;font-size:10.5px;
+      text-transform:uppercase;letter-spacing:0.6px;border-bottom:1px solid var(--hairline);}
+    table td{padding:13px 14px;border-bottom:1px solid rgba(255,255,255,0.03);color:var(--text-secondary);}
+    table tr{transition:background .25s;}
+    table tbody tr{position:relative;}
+    table tbody tr:hover{background:rgba(126,232,240,0.035);}
+    table tbody tr:hover td:first-child{box-shadow:inset 2px 0 0 var(--bio-cyan);}
+    table .key-cell{font-family:var(--mono);font-size:11.5px;color:#fff;letter-spacing:0.5px;}
+
+    /* ============ Tabs ============ */
+    .tabs{position:relative;display:flex;gap:4px;border-bottom:1px solid var(--hairline);margin-bottom:24px;flex-wrap:wrap;}
+    .tab-btn{position:relative;padding:11px 20px;background:transparent;border:none;color:var(--text-muted);
+      font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13.5px;cursor:pointer;
+      border-bottom:2px solid transparent;transition:color .25s;display:inline-flex;align-items:center;gap:7px;}
+    .tab-btn:hover{color:var(--text-primary);}
+    .tab-btn.active{color:#fff;text-shadow:0 0 12px rgba(255,255,255,0.4);}
+    .tab-indicator{position:absolute;bottom:-1px;height:2px;left:0;width:0;border-radius:2px;
+      background:linear-gradient(90deg,var(--bio-cyan),#fff,var(--bio-violet));
+      box-shadow:0 0 10px rgba(255,255,255,0.5);
+      transition:transform .35s var(--ease),width .35s var(--ease);pointer-events:none;will-change:transform,width;}
+    .tab-pane{display:none;}
+    .tab-pane.active{display:block;animation:fadeUp .4s var(--ease) both;}
+
+    /* ============ Toast ============ */
+    .toast-container{position:fixed;top:22px;right:22px;z-index:9999;display:flex;flex-direction:column;
+      gap:10px;max-width:380px;width:calc(100% - 44px);}
+    .toast{position:relative;padding:15px 20px 15px 18px;border-radius:var(--radius-sm);background:var(--bg-card-solid);
+      border:1px solid var(--hairline-strong);border-left:3px solid var(--hairline-strong);backdrop-filter:blur(24px);
+      box-shadow:0 14px 44px rgba(0,0,0,0.7);display:flex;align-items:center;gap:12px;
+      animation:toastIn .4s var(--ease-spring) both;font-size:13.5px;color:var(--text-primary);overflow:hidden;}
+    .toast.success{border-color:rgba(255,255,255,0.24);border-left-color:var(--bio-cyan);}
+    .toast.error{border-color:rgba(255,255,255,0.34);border-left-color:#ff8a80;}
+    .toast.info{border-left-color:var(--bio-violet);}
+    .toast .toast-bar{position:absolute;bottom:0;left:0;height:2px;background:currentColor;
+      opacity:0.5;animation:drawBar 4s linear forwards;}
+
+    /* ============ Auth ============ */
+    .auth-container{max-width:460px;margin:50px auto 40px;padding:0 16px;position:relative;z-index:2;}
+    .auth-container .card{padding:42px 38px;}
+    .brand-center{text-align:center;margin-bottom:30px;}
+    .brand-center .brand-icon{margin:0 auto 16px;width:74px;height:74px;}
+    .brand-center h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:23px;letter-spacing:1.5px;
+      background:linear-gradient(120deg,#fff 25%,#666 55%,#fff 85%);background-size:220% auto;
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+      animation:gradientShine 6s ease infinite;}
+    .brand-center .tagline{color:#fff;font-weight:600;font-size:12.5px;letter-spacing:2px;margin-top:6px;}
+    .form-footer{margin-top:20px;text-align:center;font-size:13.5px;color:var(--text-muted);}
+    .form-footer a{color:#fff;text-decoration:none;font-weight:600;}
+
+    /* ============ Dashboard ============ */
+    .section-title{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;
+      gap:12px;margin-bottom:22px;}
+    .section-title h2{font-family:'Orbitron',sans-serif;font-weight:700;font-size:19px;letter-spacing:0.5px;}
+    .section-title h2 .highlight{color:#fff;}
+
+    .lock-screen{max-width:560px;margin:20px auto 0;position:relative;z-index:2;}
+    .lock-icon-wrap{position:relative;width:130px;height:130px;margin:0 auto 20px;
+      display:flex;align-items:center;justify-content:center;}
+    .lock-icon-wrap .ring{position:absolute;border-radius:50%;border:1px solid rgba(126,232,240,0.35);}
+    .lock-icon-wrap .ring.r1{inset:0;animation:ringPulse 2.8s ease-out infinite;}
+    .lock-icon-wrap .ring.r2{inset:16px;animation:ringPulse 2.8s ease-out infinite .6s;border-color:rgba(255,255,255,0.3);}
+    .lock-icon-wrap .ring.r3{inset:32px;animation:ringPulse 2.8s ease-out infinite 1.2s;border-color:rgba(185,163,245,0.35);}
+    .lock-icon-wrap .core{width:70px;height:70px;border-radius:50%;
+      background:radial-gradient(circle at 35% 30%, #333, #0a0a0a 70%, #000);
+      display:flex;align-items:center;justify-content:center;font-size:27px;
+      box-shadow:0 0 44px rgba(126,232,240,0.25),0 0 30px rgba(185,163,245,0.15);animation:floatSlow 4.5s ease-in-out infinite;
+      position:relative;z-index:1;color:#fff;border:1px solid rgba(255,255,255,0.15);}
+
+    .hud-steps{display:flex;align-items:flex-start;justify-content:center;gap:0;margin:24px 0 8px;flex-wrap:wrap;}
+    .hud-step{display:flex;flex-direction:column;align-items:center;gap:7px;min-width:88px;
+      opacity:0.4;transition:opacity .4s,transform .3s var(--ease-spring);}
+    .hud-step.active,.hud-step.done{opacity:1;}
+    .hud-step.active{transform:translateY(-2px);}
+    .hud-step .dot-icon{width:34px;height:34px;border-radius:50%;border:1px solid var(--hairline-strong);
+      display:flex;align-items:center;justify-content:center;font-size:13px;background:rgba(255,255,255,0.03);transition:all .3s;}
+    .hud-step.active .dot-icon{border-color:var(--bio-cyan);color:var(--bio-cyan);box-shadow:0 0 16px rgba(126,232,240,0.4);}
+    .hud-step.done .dot-icon{background:linear-gradient(135deg,var(--bio-cyan),#fff,var(--bio-violet));border-color:transparent;color:#000;
+      box-shadow:0 0 16px rgba(255,255,255,0.3);}
+    .hud-step .label{font-size:9.5px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);text-align:center;}
+    .hud-line{width:40px;height:1px;background:var(--hairline-strong);margin:17px 2px 0;transition:background .4s;}
+    .hud-line.done{background:linear-gradient(90deg,var(--bio-cyan),var(--bio-violet));}
+
+    .dash-hero{display:flex;align-items:center;gap:30px;flex-wrap:wrap;}
+    .dash-hero-info{flex:1;min-width:200px;}
+    .dash-hero-info .provider-name{font-family:'Orbitron',sans-serif;font-size:20px;font-weight:800;
+      letter-spacing:0.5px;margin-bottom:6px;color:#fff;}
+    .dash-hero-info .username-line{font-size:13px;color:var(--text-muted);margin-bottom:14px;}
+    .ring-wrap{position:relative;width:130px;height:130px;flex-shrink:0;}
+    .ring-wrap svg{transform:rotate(-90deg);}
+    .ring-bg{fill:none;stroke:rgba(255,255,255,0.07);stroke-width:8;}
+    .ring-fg{fill:none;stroke:url(#ringGrad);stroke-width:8;stroke-linecap:round;
+      transition:stroke-dashoffset 1.2s var(--ease);filter:drop-shadow(0 0 8px rgba(255,255,255,0.5));}
+    .ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+      justify-content:center;text-align:center;}
+    .ring-center .big{font-family:'Orbitron',sans-serif;font-weight:800;font-size:22px;color:#fff;}
+    .ring-center .small{font-size:9px;letter-spacing:1px;color:var(--text-muted);
+      text-transform:uppercase;margin-top:2px;}
+
+    .terminal-box{font-size:13px;color:var(--text-secondary);background:rgba(0,0,0,0.4);
+      padding:14px 16px;border-radius:8px;font-family:var(--mono);word-break:break-all;
+      line-height:1.7;border:1px solid var(--hairline);position:relative;
+      box-shadow:inset 0 0 0 1px rgba(126,232,240,0.04),inset 0 20px 30px -24px rgba(126,232,240,0.06);}
+    .terminal-box .cursor{display:inline-block;width:7px;height:14px;background:#fff;
+      margin-left:2px;vertical-align:middle;animation:blinkCursor 1s step-end infinite;}
+
+    .collapse-panel{overflow:hidden;max-height:0;opacity:0;
+      transition:max-height .4s var(--ease-soft),opacity .3s ease;}
+    .collapse-panel.open{max-height:500px;opacity:1;margin-top:14px;}
+
+    .app-footer{margin-top:52px;padding-top:22px;border-top:1px solid var(--hairline);
+      text-align:center;font-size:11.5px;color:var(--text-muted);letter-spacing:0.3px;position:relative;z-index:1;}
+
+    /* ============ Resource Cards ============ */
+    .resource-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;}
+    .resource-grid .resource-card:nth-child(1){animation-delay:.02s;} .resource-grid .resource-card:nth-child(2){animation-delay:.06s;}
+    .resource-grid .resource-card:nth-child(3){animation-delay:.1s;} .resource-grid .resource-card:nth-child(4){animation-delay:.14s;}
+    .resource-grid .resource-card:nth-child(5){animation-delay:.18s;} .resource-grid .resource-card:nth-child(6){animation-delay:.22s;}
+    .resource-grid .resource-card:nth-child(n+7){animation-delay:.26s;}
+    .resource-card{position:relative;background:rgba(255,255,255,0.025);
+      border:1px solid var(--hairline);border-radius:var(--radius);padding:20px;
+      display:flex;flex-direction:column;gap:10px;transition:transform .35s var(--ease-spring),border-color .3s,box-shadow .3s;overflow:hidden;
+      animation:fadeUp .5s var(--ease) both;}
+    .resource-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+      background:linear-gradient(90deg,transparent,var(--bio-cyan-dim),rgba(255,255,255,0.6),var(--bio-violet-dim),transparent);opacity:0;transition:opacity .3s;}
+    .resource-card:hover{border-color:rgba(255,255,255,0.2);transform:translateY(-4px);
+      box-shadow:0 18px 40px -14px rgba(0,0,0,0.8),0 0 30px -12px rgba(126,232,240,0.12),0 0 24px -14px rgba(185,163,245,0.12);}
+    .resource-card:hover::before{opacity:1;}
+    .resource-card .res-icon{width:42px;height:42px;border-radius:10px;
+      background:rgba(255,255,255,0.06);border:1px solid var(--hairline-strong);
+      display:flex;align-items:center;justify-content:center;font-size:17px;color:#fff;
+      transition:transform .3s var(--ease-spring),background .3s;}
+    .resource-card:hover .res-icon{transform:scale(1.08) rotate(-4deg);background:rgba(255,255,255,0.1);}
+    .resource-card .res-title{font-family:'Orbitron',sans-serif;font-weight:700;font-size:14px;
+      letter-spacing:0.3px;color:#fff;word-break:break-word;}
+    .resource-card .res-desc{font-size:12.5px;color:var(--text-muted);line-height:1.5;
+      flex:1;word-break:break-word;}
+    .resource-card .res-meta{font-size:10.5px;color:var(--text-muted);letter-spacing:0.4px;
+      display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;}
+    .resource-card .res-actions{display:flex;gap:8px;flex-wrap:wrap;}
+    .resource-type-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;
+      border-radius:100px;font-size:10px;font-weight:700;letter-spacing:0.6px;
+      background:rgba(255,255,255,0.06);border:1px solid var(--hairline-strong);color:#ddd;}
+    .resource-type-badge.file{background:rgba(255,255,255,0.1);color:#fff;}
+
+    .empty-state{text-align:center;padding:50px 20px;color:var(--text-muted);}
+    .empty-state i{font-size:36px;color:#333;margin-bottom:12px;display:block;animation:floatSlow 4s ease-in-out infinite;}
+    .empty-state .title{font-size:14px;color:var(--text-secondary);font-weight:600;margin-bottom:4px;}
+
+    .page-enter{animation:fadeUp .5s var(--ease) both;}
+    .reveal{animation:fadeUp .6s var(--ease) both;}
+    .mt-8{margin-top:8px;}
+    .mt-24{margin-top:24px;}
+    .text-center{text-align:center;}
+    .gold{color:#fff;}
+    .flex-between{display:flex;align-items:center;justify-content:space-between;}
+    .wrap{flex-wrap:wrap;gap:10px;}
+    .spinner{width:15px;height:15px;border:2px solid rgba(255,255,255,0.25);
+      border-top-color:#fff;border-radius:50%;display:inline-block;animation:spin .7s linear infinite;}
+
+    /* Tilt 3D */
+    .tilt-3d{transform-style:preserve-3d;transition:transform .12s ease-out,box-shadow .3s ease;will-change:transform;}
+
+    /* Cursor glow */
+    #cursorGlow{position:fixed;top:0;left:0;width:520px;height:520px;border-radius:50%;
+      pointer-events:none;z-index:0;transform:translate(-50%,-50%);
+      background:radial-gradient(circle,rgba(255,255,255,0.07) 0%,rgba(255,255,255,0.02) 35%,transparent 70%);
+      transition:opacity .4s;opacity:0;will-change:transform;}
+    #cursorGlow.on{opacity:1;}
+
+    @media (max-width:900px){.grid-2{grid-template-columns:1fr;}}
+    @media (max-width:600px){
+      .brand-text .main{font-size:15px;letter-spacing:1.5px;}
+      .brand-text .sub{font-size:7.5px;letter-spacing:2px;}
+      .brand-icon{width:42px;height:42px;}
+      .card{padding:22px 18px;}
+      .auth-container .card{padding:28px 20px;}
+      .stat-grid{grid-template-columns:1fr 1fr;}
+      .app-wrapper{padding:14px 12px 34px;}
+      .dash-hero{justify-content:center;text-align:center;}
+      #cursorGlow{display:none;}
+    }
+    @media (prefers-reduced-motion: reduce){
+      *{animation-duration:0.001ms !important;animation-iteration-count:1 !important;}
+    }
+
+    /* ============ Accessibility: visible keyboard focus ============ */
+    a:focus-visible,button:focus-visible,.form-control:focus-visible,[tabindex]:focus-visible{
+      outline:2px solid var(--bio-cyan);outline-offset:2px;border-radius:6px;
+    }
+
+    /* ============ Loading skeleton shimmer (used while data loads) ============ */
+    .skeleton-row{background:linear-gradient(90deg,rgba(255,255,255,0.03) 25%,rgba(255,255,255,0.07) 37%,rgba(255,255,255,0.03) 63%);
+      background-size:400% 100%;animation:skeletonShine 1.6s ease infinite;border-radius:8px;height:14px;margin:6px 0;}
+    @keyframes skeletonShine{0%{background-position:100% 0;}100%{background-position:-100% 0;}}
+  </style>
+</head>
+<body>
+<canvas id="particleCanvas"></canvas>
+<div id="scanlineLayer"></div>
+<div id="cursorGlow"></div>
+
+<svg width="0" height="0" style="position:absolute;overflow:hidden;">
+  <defs>
+    <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7ee8f0"/>
+      <stop offset="55%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#b9a3f5"/>
+    </linearGradient>
+    <linearGradient id="jellyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#888888"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 🪼 Jellyfish Logo Symbol -->
+  <symbol id="jellyLogoSymbol" viewBox="0 0 100 100">
+    <path class="jelly-bell" d="M50 14 C28 14 16 32 16 48 C16 54 20 58 26 58 L74 58 C80 58 84 54 84 48 C84 32 72 14 50 14 Z"
+          fill="none" stroke="url(#jellyGrad)" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M34 38 Q50 30 66 38" fill="none" stroke="url(#jellyGrad)" stroke-width="1.4" opacity="0.55"/>
+    <path d="M38 46 Q50 40 62 46" fill="none" stroke="url(#jellyGrad)" stroke-width="1.2" opacity="0.35"/>
+    <path class="jelly-tent" d="M28 58 Q26 72 25 86 Q24.5 90 27 91" fill="none" stroke="url(#jellyGrad)" stroke-width="2.4" stroke-linecap="round"/>
+    <path class="jelly-tent" d="M38 58 Q37 74 36 88 Q35.5 92 38 94" fill="none" stroke="url(#jellyGrad)" stroke-width="2.4" stroke-linecap="round"/>
+    <path class="jelly-tent" d="M50 58 Q51 75 50 90 Q49.5 94 52 96" fill="none" stroke="url(#jellyGrad)" stroke-width="2.4" stroke-linecap="round"/>
+    <path class="jelly-tent" d="M62 58 Q63 74 64 88 Q64.5 92 62 94" fill="none" stroke="url(#jellyGrad)" stroke-width="2.4" stroke-linecap="round"/>
+    <path class="jelly-tent" d="M72 58 Q74 72 75 86 Q75.5 90 73 91" fill="none" stroke="url(#jellyGrad)" stroke-width="2.4" stroke-linecap="round"/>
+    <circle cx="50" cy="30" r="2.4" fill="#ffffff" opacity="0.9"/>
+    <circle cx="40" cy="34" r="1.6" fill="#ffffff" opacity="0.55"/>
+    <circle cx="60" cy="34" r="1.6" fill="#ffffff" opacity="0.55"/>
+  </symbol>
+</svg>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="app-wrapper" id="app">
+  <header class="brand-header">
+    <a href="#" class="brand" id="brandLink">
+      <div class="brand-icon tilt-3d">
+        <svg class="jelly-logo-svg"><use href="#jellyLogoSymbol"></use></svg>
+        <span class="badge"></span>
+      </div>
+      <div class="brand-text">
+        <span class="main">JELLYFISH CORP</span>
+        <span class="sub">· <span>PREMIUM</span> AUTH SYSTEM ·</span>
+      </div>
+    </a>
+    <div class="header-actions" id="headerActions"></div>
+  </header>
+  <main id="pageContent" style="flex:1;padding-top:26px;position:relative;z-index:1;"></main>
+  <footer class="app-footer">
+    <span>🪼 JELLYFISH CORPORATION Authorization System <span style="color:#fff;">v4.0</span></span>
+    <span style="margin:0 8px;">·</span>
+    <span>© 2026</span>
+    <span style="margin-left:16px;">
+      <button class="btn btn-outline btn-xs" onclick="window._clearData()">🧹 Clear Data</button>
+    </span>
+  </footer>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  // ============ Particles (White/Silver) ============
+  (function initParticles(){
+    const canvas = document.getElementById('particleCanvas');
+    const ctx = canvas.getContext('2d');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let w, h, particles = [], orbs = [];
+    const mouse = { x: -9999, y: -9999 };
+    let t = 0;
+    function count(){ return window.innerWidth < 700 ? 40 : 85; }
+    function resize(){ w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
+    function makeParticles(){
+      particles = Array.from({length: count()}, () => ({
+        x: Math.random()*w, y: Math.random()*h,
+        vx: (Math.random()-0.5)*0.32, vy: (Math.random()-0.5)*0.32,
+        r: Math.random()*1.6+0.5, tw: Math.random()*Math.PI*2
+      }));
+      orbs = Array.from({length: 6}, (_, i) => ({
+        x: Math.random()*w, y: Math.random()*h,
+        vx: (Math.random()-0.5)*0.1, vy: (Math.random()-0.5)*0.1,
+        r: Math.random()*3+2.4,
+        hue: i % 3 === 0 ? '126,232,240' : (i % 3 === 1 ? '185,163,245' : '255,255,255')
+      }));
+    }
+    window.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
+    window.addEventListener('mouseleave', () => { mouse.x = -9999; mouse.y = -9999; });
+    window.addEventListener('touchmove', (e) => { if (e.touches[0]) { mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY; } }, { passive:true });
+
+    function step(){
+      t += 0.016;
+      ctx.clearRect(0,0,w,h);
+      for (const o of orbs){
+        o.x += o.vx; o.y += o.vy;
+        if (o.x < -50 || o.x > w+50) o.vx *= -1;
+        if (o.y < -50 || o.y > h+50) o.vy *= -1;
+        const grad = ctx.createRadialGradient(o.x,o.y,0,o.x,o.y,o.r*18);
+        grad.addColorStop(0, `rgba(${o.hue},0.1)`);
+        grad.addColorStop(1, `rgba(${o.hue},0)`);
+        ctx.fillStyle = grad;
+        ctx.beginPath(); ctx.arc(o.x, o.y, o.r*18, 0, Math.PI*2); ctx.fill();
+      }
+      for (const p of particles){
+        const dx = p.x - mouse.x, dy = p.y - mouse.y;
+        const dist = Math.sqrt(dx*dx+dy*dy);
+        if (dist < 120 && dist > 0.01){
+          const force = (120 - dist) / 120;
+          p.x += (dx/dist) * force * 1.6;
+          p.y += (dy/dist) * force * 1.6;
+        }
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0 || p.x > w) p.vx *= -1;
+        if (p.y < 0 || p.y > h) p.vy *= -1;
+        const alpha = 0.28 + 0.35 * Math.sin(t*1.4 + p.tw);
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+        ctx.shadowBlur = 6;
+        ctx.shadowColor = 'rgba(255,255,255,0.85)';
+        ctx.fillStyle = 'rgba(255,255,255,' + alpha.toFixed(2) + ')';
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+      for (let i=0;i<particles.length;i++){
+        for (let j=i+1;j<particles.length;j++){
+          const a = particles[i], b = particles[j];
+          const dx = a.x-b.x, dy = a.y-b.y;
+          const dist = Math.sqrt(dx*dx+dy*dy);
+          if (dist < 130){
+            ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+            ctx.strokeStyle = 'rgba(255,255,255,' + (0.1 * (1 - dist/130)).toFixed(2) + ')';
+            ctx.lineWidth = 1; ctx.stroke();
+          }
+        }
+      }
+      if (!reduceMotion) requestAnimationFrame(step);
+    }
+    resize(); makeParticles();
+    window.addEventListener('resize', () => { resize(); makeParticles(); });
+    if (!reduceMotion) requestAnimationFrame(step); else step();
+  })();
+
+  // ============ State & Helpers ============
+  const STATE = { user: null, token: null, page: 'dashboard' };
+  const $ = (sel) => document.querySelector(sel);
+  const $$ = (sel) => document.querySelectorAll(sel);
+  const pageContent = $('#pageContent');
+  const headerActions = $('#headerActions');
+  const toastContainer = $('#toastContainer');
+
+  function showToast(message, type = 'info', duration = 4000) {
+    const icons = { error: '❌', success: '✅', info: '⚡' };
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.innerHTML = `<span class="toast-icon">${icons[type] || '⚡'}</span><span>${message}</span><span class="toast-bar" style="animation-duration:${duration}ms;"></span>`;
+    toastContainer.appendChild(el);
+    setTimeout(() => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateX(40px)';
+      el.style.transition = '0.3s ease';
+      setTimeout(() => el.remove(), 400);
+    }, duration);
+  }
+
+  // Delegated copy-to-clipboard (safer than embedding raw values in inline onclick strings)
+  document.addEventListener('click', (e) => {
+    const copyBtn = e.target.closest('[data-copy]');
+    if (copyBtn) window._copyText(copyBtn.getAttribute('data-copy'), copyBtn);
+  });
+
+  // Ripple + click sound
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.btn');
+    if (!btn || btn.disabled) return;
+    const rect = btn.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    const span = document.createElement('span');
+    span.className = 'ripple';
+    span.style.width = span.style.height = size + 'px';
+    span.style.left = (e.clientX - rect.left - size/2) + 'px';
+    span.style.top = (e.clientY - rect.top - size/2) + 'px';
+    btn.appendChild(span);
+    setTimeout(() => span.remove(), 650);
+    playClickSound();
+  });
+
+  let _audioCtx = null;
+  function getAudioCtx() {
+    if (!_audioCtx) {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (Ctx) _audioCtx = new Ctx();
+    }
+    return _audioCtx;
+  }
+  function playClickSound() {
+    try {
+      const ctx = getAudioCtx();
+      if (!ctx) return;
+      if (ctx.state === 'suspended') ctx.resume();
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(820, now);
+      osc.frequency.exponentialRampToValueAtTime(220, now + 0.09);
+      gain.gain.setValueAtTime(0.06, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.11);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(now); osc.stop(now + 0.12);
+    } catch (e) {}
+  }
+  ['click','keydown','touchstart'].forEach(evt => document.addEventListener(evt, () => getAudioCtx(), { once: true }));
+
+  // Cursor glow + tilt
+  (function initMouseFX() {
+    const glow = document.getElementById('cursorGlow');
+    let targetX = window.innerWidth / 2, targetY = window.innerHeight / 2;
+    let currentX = targetX, currentY = targetY;
+    function loop() {
+      currentX += (targetX - currentX) * 0.15;
+      currentY += (targetY - currentY) * 0.15;
+      if (glow) glow.style.transform = `translate(${currentX}px, ${currentY}px) translate(-50%,-50%)`;
+      requestAnimationFrame(loop);
+    }
+    window.addEventListener('mousemove', (e) => {
+      targetX = e.clientX; targetY = e.clientY;
+      if (glow) glow.classList.add('on');
+      const tiltEl = e.target.closest('.tilt-3d');
+      document.querySelectorAll('.tilt-3d').forEach(el => {
+        if (el !== tiltEl) return;
+        const rect = el.getBoundingClientRect();
+        const px = (e.clientX - rect.left) / rect.width;
+        const py = (e.clientY - rect.top) / rect.height;
+        const rx = (0.5 - py) * 14;
+        const ry = (px - 0.5) * 14;
+        el.style.transform = `perspective(700px) rotateX(${rx}deg) rotateY(${ry}deg) scale3d(1.02,1.02,1.02)`;
+      });
+    });
+    document.addEventListener('mouseleave', () => { if (glow) glow.classList.remove('on'); }, true);
+    document.addEventListener('mouseout', (e) => {
+      const el = e.target.closest && e.target.closest('.tilt-3d');
+      if (el && !el.contains(e.relatedTarget)) {
+        el.style.transform = 'perspective(700px) rotateX(0deg) rotateY(0deg) scale3d(1,1,1)';
+      }
+    });
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) loop();
+  })();
+
+  // Clipboard
+  window._copyText = function(text, btnEl) {
+    if (!navigator.clipboard) { showToast('Clipboard not supported.', 'error'); return; }
+    navigator.clipboard.writeText(text).then(() => {
+      showToast('Copied to clipboard!', 'success', 2000);
+      if (btnEl) {
+        const orig = btnEl.innerHTML;
+        btnEl.innerHTML = '<i class="fas fa-check"></i>';
+        setTimeout(() => { btnEl.innerHTML = orig; }, 1100);
+      }
+    }).catch(() => showToast('Copy failed.', 'error'));
+  };
+
+  // API
+  async function apiCall(endpoint, method = 'GET', body = null, token = null) {
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const opts = { method, headers };
+    if (body) opts.body = JSON.stringify(body);
+    try {
+      const res = await fetch(endpoint, opts);
+      let data;
+      try { data = await res.json(); } catch { data = { success:false, message:'Invalid server response.' }; }
+      if (res.status === 401 && STATE.token) {
+        setToken(null); setUser(null); STATE.user = null;
+        showToast(data.message || 'Session expired. Please login again.', 'error');
+        navigate('login');
+      }
+      if (!res.ok && data.success === undefined) data.success = false;
+      return data;
+    } catch (e) {
+      console.error('API Error:', e);
+      return { success: false, message: 'Network error.' };
+    }
+  }
+
+  function getToken() { return localStorage.getItem('jelly_token'); }
+  function setToken(token) {
+    if (token) { localStorage.setItem('jelly_token', token); STATE.token = token; }
+    else { localStorage.removeItem('jelly_token'); STATE.token = null; }
+  }
+  function getUser() {
+    try { const d = localStorage.getItem('jelly_user'); return d ? JSON.parse(d) : null; } catch { return null; }
+  }
+  function setUser(user) {
+    if (user) { localStorage.setItem('jelly_user', JSON.stringify(user)); STATE.user = user; }
+    else { localStorage.removeItem('jelly_user'); STATE.user = null; }
+  }
+  function isLoggedIn() { return !!getToken() && !!getUser(); }
+  function getRole() { return (STATE.user && STATE.user.role) || 'guest'; }
+  function isActive(user) { return !!user && user.premiumStatus === 'active'; }
+
+  function formatTimeLeft(expiresAt) {
+    if (expiresAt === null || expiresAt === undefined) return { percent: 100, big: '∞', small: 'LIFETIME', expired: false };
+    const diff = expiresAt - Date.now();
+    if (diff <= 0) return { percent: 0, big: '0', small: 'EXPIRED', expired: true };
+    const days = Math.floor(diff / 86400000);
+    const hours = Math.floor((diff % 86400000) / 3600000);
+    const percent = Math.max(4, Math.min(100, (diff / (30*86400000)) * 100));
+    return { percent, big: days > 0 ? String(days) : String(hours), small: days > 0 ? 'DAYS LEFT' : 'HOURS LEFT', expired: false };
+  }
+
+  function licenseRingSVG(info) {
+    const r = 54, c = 2 * Math.PI * r;
+    const offset = c - (info.percent / 100) * c;
+    return `
+      <svg width="130" height="130" viewBox="0 0 130 130">
+        <circle cx="65" cy="65" r="${r}" class="ring-bg"/>
+        <circle cx="65" cy="65" r="${r}" class="ring-fg" style="stroke-dasharray:${c.toFixed(1)};stroke-dashoffset:${offset.toFixed(1)};"/>
+      </svg>
+      <div class="ring-center"><div class="big">${info.big}</div><div class="small">${info.small}</div></div>
+    `;
+  }
+
+  // Animated sliding indicator under the active tab
+  function initTabIndicator(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return () => {};
+    let indicator = container.querySelector('.tab-indicator');
+    if (!indicator) {
+      indicator = document.createElement('span');
+      indicator.className = 'tab-indicator';
+      container.appendChild(indicator);
+    }
+    function move(btn) {
+      if (!btn) return;
+      indicator.style.width = btn.offsetWidth + 'px';
+      indicator.style.transform = `translateX(${btn.offsetLeft}px)`;
+    }
+    const sync = () => move(container.querySelector('.tab-btn.active'));
+    requestAnimationFrame(sync);
+    window.addEventListener('resize', sync);
+    return move;
+  }
+
+  const hudCorners = `<span class="hud-corner tl"></span><span class="hud-corner tr"></span><span class="hud-corner bl"></span><span class="hud-corner br"></span>`;
+  const jellyLogoHTML = `<svg class="jelly-logo-svg"><use href="#jellyLogoSymbol"></use></svg><span class="badge"></span>`;
+
+  function navigate(page) {
+    STATE.page = page;
+    renderHeader();
+    renderPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  window._clearData = function() {
+    if (confirm('⚠️ This will clear all local data and log you out. Continue?')) {
+      localStorage.clear();
+      showToast('Data cleared. Page will reload.', 'info');
+      setTimeout(() => location.reload(), 600);
+    }
+  };
+
+  // ============ Header ============
+  function renderHeader() {
+    const user = STATE.user, token = STATE.token;
+    if (!token || !user) {
+      headerActions.innerHTML = `
+        <button class="btn btn-outline btn-sm" onclick="window._navigate('login')"><i class="fas fa-sign-in-alt"></i> <span>Login</span></button>
+        <button class="btn btn-primary btn-sm" onclick="window._navigate('register')"><i class="fas fa-user-plus"></i> <span>Register</span></button>
+      `;
+      return;
+    }
+    const roleLabel = user.role === 'admin' ? '👑 Admin' :
+      user.role === 'reseller' ? '🔄 Reseller' :
+      `👤 ${user.username}`;
+    headerActions.innerHTML = `
+      <span style="font-size:12px;color:var(--text-muted);margin-right:4px;">
+        ${roleLabel}${user.provider ? ' · ' + user.provider : ''}
+      </span>
+      <button class="btn btn-danger btn-sm" onclick="window._logout()"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></button>
+    `;
+  }
+
+  function renderPage(page) {
+    switch (page) {
+      case 'login': renderLogin(); break;
+      case 'register': renderRegister(); break;
+      case 'dashboard': renderDashboard(); break;
+      case 'admin': renderAdmin(); break;
+      case 'reseller': renderReseller(); break;
+      default: renderDashboard();
+    }
+  }
+
+  // ============ Login ============
+  function renderLogin() {
+    pageContent.innerHTML = `
+      <div class="auth-container page-enter">
+        <div class="card card-glow" style="position:relative;">
+          ${hudCorners}
+          <div class="brand-center">
+            <div class="brand-icon tilt-3d" style="margin:0 auto 16px;width:74px;height:74px;">
+              ${jellyLogoHTML}
+            </div>
+            <h2>JELLYFISH CORPORATION</h2>
+            <p class="tagline">PREMIUM ACCESS CONTROL</p>
+          </div>
+          <form id="loginForm" onsubmit="return false;">
+            <div class="form-group">
+              <label>Username</label>
+              <div class="input-icon-group">
+                <input class="form-control" id="loginUsername" placeholder="Enter your username" required autocomplete="username" />
+                <i class="fas fa-user"></i>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Password</label>
+              <div class="input-icon-group">
+                <input class="form-control" id="loginPassword" type="password" placeholder="Enter your password" required autocomplete="current-password" />
+                <i class="fas fa-lock"></i>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-block" id="loginBtn" type="submit"><i class="fas fa-unlock"></i> Login</button>
+          </form>
+          <div class="form-footer">Don't have an account? <a href="#" onclick="window._navigate('register');return false;">Create one</a></div>
+        </div>
+      </div>
+    `;
+    const form = $('#loginForm'), btn = $('#loginBtn');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = $('#loginUsername').value.trim();
+      const password = $('#loginPassword').value.trim();
+      if (!username || !password) { showToast('Please fill in all fields.', 'error'); return; }
+      btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Logging in...';
+      try {
+        const res = await apiCall('/api/auth/login', 'POST', { username, password });
+        if (res.success) {
+          setToken(res.token); setUser(res.user); STATE.user = res.user;
+          showToast('Welcome back, ' + res.user.username + '!', 'success');
+          const role = res.user.role || 'client';
+          navigate(role === 'admin' ? 'admin' : role === 'reseller' ? 'reseller' : 'dashboard');
+        } else showToast(res.message || 'Login failed.', 'error');
+      } catch (err) { showToast('Error: ' + err.message, 'error'); }
+      finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-unlock"></i> Login'; }
+    });
+  }
+
+  // ============ Register ============
+  function renderRegister() {
+    pageContent.innerHTML = `
+      <div class="auth-container page-enter">
+        <div class="card card-glow" style="position:relative;">
+          ${hudCorners}
+          <div class="brand-center">
+            <div class="brand-icon tilt-3d" style="margin:0 auto 16px;width:74px;height:74px;">${jellyLogoHTML}</div>
+            <h2>CREATE ACCOUNT</h2>
+            <p class="tagline">JOIN JELLYFISH CORPORATION</p>
+          </div>
+          <form id="registerForm" onsubmit="return false;">
+            <div class="form-group"><label>Username</label><div class="input-icon-group"><input class="form-control" id="regUsername" placeholder="Choose a username" required autocomplete="username" /><i class="fas fa-user"></i></div></div>
+            <div class="form-group"><label>Email</label><div class="input-icon-group"><input class="form-control" id="regEmail" type="email" placeholder="Your email" required autocomplete="email" /><i class="fas fa-envelope"></i></div></div>
+            <div class="form-group"><label>Password</label><div class="input-icon-group"><input class="form-control" id="regPassword" type="password" placeholder="Min 6 characters" required autocomplete="new-password" /><i class="fas fa-lock"></i></div></div>
+            <button class="btn btn-primary btn-block" id="registerBtn" type="submit"><i class="fas fa-user-plus"></i> Register</button>
+          </form>
+          <div class="form-footer">Already have an account? <a href="#" onclick="window._navigate('login');return false;">Login</a></div>
+        </div>
+      </div>
+    `;
+    const form = $('#registerForm'), btn = $('#registerBtn');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = $('#regUsername').value.trim();
+      const email = $('#regEmail').value.trim();
+      const password = $('#regPassword').value.trim();
+      if (!username || !email || !password) { showToast('Please fill in all fields.', 'error'); return; }
+      if (password.length < 6) { showToast('Password must be at least 6 characters.', 'error'); return; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('Please enter a valid email.', 'error'); return; }
+      btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Creating...';
+      try {
+        const res = await apiCall('/api/auth/register', 'POST', { username, email, password });
+        if (res.success) { showToast('Account created! Please login.', 'success'); navigate('login'); }
+        else showToast(res.message || 'Registration failed.', 'error');
+      } catch (err) { showToast('Error: ' + err.message, 'error'); }
+      finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-user-plus"></i> Register'; }
+    });
+  }
+
+  // ============ Dashboard ============
+  function renderDashboard() {
+    const user = STATE.user;
+    if (!user) { navigate('login'); return; }
+    if (!isActive(user)) { renderLockedDashboard(user); return; }
+    renderActiveDashboard(user);
+  }
+
+  function renderLockedDashboard(user) {
+    const expiredMsg = user.premiumStatus === 'expired';
+    pageContent.innerHTML = `
+      <div class="lock-screen page-enter">
+        <div class="text-center reveal">
+          <div class="lock-icon-wrap">
+            <span class="ring r1"></span><span class="ring r2"></span><span class="ring r3"></span>
+            <div class="core"><i class="fas fa-lock"></i></div>
+          </div>
+          <h2 style="font-family:'Orbitron',sans-serif;font-size:19px;letter-spacing:0.5px;">
+            ${expiredMsg ? 'License Expired' : 'Activate Your Access'}
+          </h2>
+          <p style="color:var(--text-muted);font-size:13.5px;margin-top:8px;">
+            ${expiredMsg
+              ? `Hi <span style="color:#fff;font-weight:600;">${user.username}</span> — your previous license has expired. Redeem a new key.`
+              : `Hi <span style="color:#fff;font-weight:600;">${user.username}</span> — redeem a premium key with your SID and IP.`}
+          </p>
+        </div>
+
+        <div class="hud-steps reveal">
+          <div class="hud-step" id="step-key"><div class="dot-icon"><i class="fas fa-key"></i></div><div class="label">Key</div></div>
+          <div class="hud-line" id="line-1"></div>
+          <div class="hud-step" id="step-ip"><div class="dot-icon"><i class="fas fa-network-wired"></i></div><div class="label">IP</div></div>
+          <div class="hud-line" id="line-2"></div>
+          <div class="hud-step" id="step-sid"><div class="dot-icon"><i class="fas fa-fingerprint"></i></div><div class="label">SID</div></div>
+        </div>
+
+        <div class="card card-glow mt-24 reveal" style="position:relative;">
+          ${hudCorners}
+          <div class="card-title"><span class="icon">🔑</span> Redeem Premium Key</div>
+          <div class="card-sub">Enter your premium key, current IP, and SID to activate.</div>
+          <form id="redeemForm" onsubmit="return false;">
+            <div class="form-group">
+              <label>Premium Key</label>
+              <div class="input-icon-group"><input class="form-control" id="redeemKey" placeholder="JELLY-XXXX-XXXX-XXXX-XXXX" required /><i class="fas fa-key"></i></div>
+            </div>
+            <div class="form-group">
+              <label>Your IP</label>
+              <div style="display:flex;gap:8px;">
+                <div class="input-icon-group" style="flex:1;"><input class="form-control" id="redeemIp" placeholder="Auto-detect" value="${user.ip || ''}" required /><i class="fas fa-network-wired"></i></div>
+                <button type="button" class="btn btn-outline btn-sm" id="getIpBtn"><i class="fas fa-location-arrow"></i></button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>SID (System ID)</label>
+              <div class="input-icon-group"><input class="form-control" id="redeemSid" placeholder="Enter your SID" value="${user.sid || ''}" required /><i class="fas fa-fingerprint"></i></div>
+            </div>
+            <button class="btn btn-primary btn-block" id="redeemBtn" type="submit"><i class="fas fa-key"></i> Redeem Key</button>
+          </form>
+        </div>
+      </div>
+    `;
+    function refreshSteps() {
+      const key = $('#redeemKey').value.trim();
+      const ip = $('#redeemIp').value.trim();
+      const sid = $('#redeemSid').value.trim();
+      const stepKey = $('#step-key'), stepIp = $('#step-ip'), stepSid = $('#step-sid');
+      const line1 = $('#line-1'), line2 = $('#line-2');
+      stepKey.classList.toggle('done', !!key);
+      stepIp.classList.toggle('done', !!ip);
+      stepSid.classList.toggle('done', !!sid);
+      line1.classList.toggle('done', !!key);
+      line2.classList.toggle('done', !!ip);
+      [stepKey, stepIp, stepSid].forEach(s => { if (!s.classList.contains('done')) s.classList.remove('active'); });
+      if (!key) stepKey.classList.add('active');
+      else if (!ip) stepIp.classList.add('active');
+      else if (!sid) stepSid.classList.add('active');
+    }
+    ['redeemKey','redeemIp','redeemSid'].forEach(id => $('#'+id).addEventListener('input', refreshSteps));
+    refreshSteps();
+
+    const getIp = async (targetId) => {
+      try {
+        const res = await fetch('https://api.ipify.org?format=json');
+        const data = await res.json();
+        const ip = data.ip;
+        if (targetId) { const el = document.getElementById(targetId); if (el) { el.value = ip; el.dispatchEvent(new Event('input')); } showToast('IP detected: ' + ip, 'success'); }
+        return ip;
+      } catch { showToast('Could not detect IP.', 'error'); return null; }
+    };
+    document.getElementById('getIpBtn')?.addEventListener('click', () => getIp('redeemIp'));
+    if (!user.ip) getIp('redeemIp');
+
+    document.getElementById('redeemForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const key = $('#redeemKey').value.trim();
+      const ip = $('#redeemIp').value.trim();
+      const sid = $('#redeemSid').value.trim();
+      if (!key || !ip || !sid) { showToast('Please fill in all fields.', 'error'); return; }
+      const btn = $('#redeemBtn');
+      btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Redeeming...';
+      try {
+        const res = await apiCall('/api/client/redeem', 'POST', { key, ip, sid }, getToken());
+        if (res.success) {
+          showToast('✅ Key redeemed! Account activated.', 'success');
+          setUser(res.user); STATE.user = res.user; navigate('dashboard');
+        } else showToast(res.message || 'Redeem failed.', 'error');
+      } catch (err) { showToast('Error: ' + err.message, 'error'); }
+      finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-key"></i> Redeem Key'; }
+    });
+  }
+
+  // ============ Active Dashboard (with tabs) ============
+  function renderActiveDashboard(user) {
+    const timeInfo = formatTimeLeft(user.expiresAt);
+    pageContent.innerHTML = `
+      <div class="page-enter">
+        <div class="section-title reveal">
+          <h2>🪼 Dashboard · <span class="highlight">${user.username}</span></h2>
+          <span class="badge-status active"><span class="dot"></span> PREMIUM</span>
+        </div>
+
+        <div class="tabs" id="clientTabs">
+          <button class="tab-btn active" data-tab="dash-overview"><i class="fas fa-gauge"></i> Overview</button>
+          <button class="tab-btn" data-tab="dash-resources"><i class="fas fa-folder-open"></i> Resources</button>
+          <button class="tab-btn" data-tab="dash-settings"><i class="fas fa-sliders"></i> Settings</button>
+        </div>
+
+        <div id="clientTabContent">
+          <!-- ============ OVERVIEW ============ -->
+          <div class="tab-pane active" id="dash-overview">
+            <div class="card card-glow dash-hero tilt-3d" style="position:relative;">
+              ${hudCorners}
+              <div class="ring-wrap">${licenseRingSVG(timeInfo)}</div>
+              <div class="dash-hero-info">
+                <div class="provider-name">${user.provider || 'Unknown Provider'}</div>
+                <div class="username-line"><i class="fas fa-user-shield"></i> Licensed to ${user.username} ${user.discordId ? '· 🎮 ' + user.discordId : ''}</div>
+                <span class="badge-status active"><span class="dot"></span> ${timeInfo.expired ? 'EXPIRED' : 'ACCESS GRANTED'}</span>
+              </div>
+            </div>
+
+            <div class="stat-grid mt-24 reveal">
+              <div class="stat-item"><div class="label">Provider</div><div class="value" style="font-size:14px;font-family:'Space Grotesk';">${user.provider || '—'}</div></div>
+              <div class="stat-item">
+                <button class="copy-mini" title="Copy" data-copy="${escapeAttr(user.premiumKey||'')}"><i class="fas fa-copy"></i></button>
+                <div class="label">Premium Key</div><div class="value" style="font-size:12px;font-family:var(--mono);">${user.premiumKey || '—'}</div>
+              </div>
+              <div class="stat-item">
+                <button class="copy-mini" title="Copy SID" data-copy="${escapeAttr(user.sid||'')}"><i class="fas fa-copy"></i></button>
+                <div class="label">Current SID</div><div class="value" style="font-size:12px;">${user.sid || '—'}</div>
+              </div>
+              <div class="stat-item">
+                <button class="copy-mini" title="Copy IP" data-copy="${escapeAttr(user.ip||'')}"><i class="fas fa-copy"></i></button>
+                <div class="label">Current IP</div><div class="value" style="font-size:12px;">${user.ip || '—'}</div>
+              </div>
+              <div class="stat-item"><div class="label">Expiry</div><div class="value" style="font-size:13px;">${user.expiresAt ? new Date(user.expiresAt).toLocaleDateString() : 'Lifetime'}</div></div>
+              <div class="stat-item"><div class="label">Discord</div><div class="value" style="font-size:12px;">${user.discordId || '—'}</div></div>
+            </div>
+
+            <div class="card card-glow mt-24 reveal">
+              <div class="card-title"><span class="icon">🔌</span> API Endpoint</div>
+              <div class="card-sub">Use this endpoint from your client application to verify session.</div>
+              <div class="terminal-box">GET /api/verify?sid=${user.sid || 'YOUR_SID'}<span class="cursor"></span></div>
+              <div class="flex-between mt-24" style="font-size:12px;color:var(--text-muted);">
+                <span><i class="fas fa-circle" style="color:#fff;font-size:8px;"></i> Online</span>
+                <button class="btn btn-outline btn-xs" data-copy="${escapeAttr(window.location.origin + '/api/verify?sid=' + (user.sid||'YOUR_SID'))}"><i class="fas fa-copy"></i> Copy</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ============ RESOURCES ============ -->
+          <div class="tab-pane" id="dash-resources">
+            <div class="card card-glow">
+              <div class="flex-between wrap" style="margin-bottom:16px;">
+                <div>
+                  <div class="card-title" style="margin-bottom:4px;"><span class="icon">📦</span> Published Resources</div>
+                  <div class="card-sub" style="margin-bottom:0;">Files & links published by Jellyfish HQ for premium members.</div>
+                </div>
+                <button class="btn btn-outline btn-sm" id="refreshResourcesBtn"><i class="fas fa-sync"></i> Refresh</button>
+              </div>
+              <div id="resourcesContainer">
+                <div class="empty-state"><i class="fas fa-spinner fa-spin"></i><div class="title">Loading resources...</div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ============ SETTINGS ============ -->
+          <div class="tab-pane" id="dash-settings">
+            <div class="grid-2">
+              <div class="card card-glow">
+                <div class="card-title"><span class="icon">⚙️</span> Update Credentials</div>
+                <div class="card-sub">Update SID, IP, Discord linked to your license.</div>
+                <form id="updateForm" onsubmit="return false;">
+                  <div class="form-group">
+                    <div class="flex-between" style="margin-bottom:6px;">
+                      <label style="margin:0;">New SID</label>
+                      <span id="sidCooldownChip"></span>
+                    </div>
+                    <div class="input-icon-group"><input class="form-control" id="updateSid" placeholder="Enter new SID" /><i class="fas fa-fingerprint"></i></div>
+                  </div>
+                  <div class="form-group">
+                    <label>New IP</label>
+                    <div class="input-icon-group"><input class="form-control" id="updateIp" placeholder="Enter new IP" /><i class="fas fa-network-wired"></i></div>
+                    <button type="button" class="btn btn-outline btn-sm mt-8" id="getIpBtn2" style="width:100%;"><i class="fas fa-location-arrow"></i> Auto-detect IP</button>
+                  </div>
+                  <div class="form-group"><label>Discord User ID</label><div class="input-icon-group"><input class="form-control" id="updateDiscord" placeholder="Discord ID" value="${user.discordId || ''}" /><i class="fab fa-discord"></i></div></div>
+                  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button class="btn btn-primary btn-sm" id="updateSidBtn" type="button"><i class="fas fa-sync"></i> Update SID</button>
+                    <button class="btn btn-primary btn-sm" id="updateIpBtn" type="button"><i class="fas fa-sync"></i> Update IP</button>
+                    <button class="btn btn-primary btn-sm" id="updateDiscordBtn" type="button"><i class="fas fa-id-badge"></i> Update Discord</button>
+                  </div>
+                </form>
+              </div>
+              <div class="card card-glow">
+                <div class="card-title"><span class="icon">🔑</span> Redeem Another Key</div>
+                <div class="card-sub">Have a new key? Redeem to extend or replace your access.</div>
+                <form id="renewForm" onsubmit="return false;">
+                  <div class="form-group"><label>Premium Key</label><input class="form-control" id="renewKey" placeholder="JELLY-XXXX-XXXX-XXXX-XXXX" /></div>
+                  <button class="btn btn-primary btn-block" id="renewBtn" type="submit"><i class="fas fa-key"></i> Redeem</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Tabs
+    const tabBtns = $$('#clientTabs .tab-btn');
+    const moveClientIndicator = initTabIndicator('clientTabs');
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        moveClientIndicator(btn);
+        const target = btn.dataset.tab;
+        $$('#clientTabContent .tab-pane').forEach(p => p.classList.remove('active'));
+        document.getElementById(target)?.classList.add('active');
+        if (target === 'dash-resources') loadClientResources();
+      });
+    });
+
+    // Resources loader
+    async function loadClientResources() {
+      const container = document.getElementById('resourcesContainer');
+      if (!container) return;
+      container.innerHTML = `<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><div class="title">Loading resources...</div></div>`;
+      try {
+        const res = await apiCall('/api/client/resources', 'GET', null, getToken());
+        if (res.success && res.resources) {
+          if (res.resources.length === 0) {
+            container.innerHTML = `<div class="empty-state"><i class="fas fa-folder-open"></i><div class="title">No resources yet</div><div>Resources published by admin will appear here.</div></div>`;
+            return;
+          }
+          container.innerHTML = `<div class="resource-grid">${res.resources.map(r => {
+            const isFile = r.type === 'file';
+            const sizeStr = r.fileSize ? formatBytes(r.fileSize) : '';
+            return `
+              <div class="resource-card">
+                <div class="flex-between" style="align-items:flex-start;">
+                  <div class="res-icon"><i class="fas ${isFile ? 'fa-file-arrow-down' : 'fa-link'}"></i></div>
+                  <span class="resource-type-badge ${isFile ? 'file' : ''}">${isFile ? 'FILE' : 'LINK'}</span>
+                </div>
+                <div class="res-title">${escapeHtml(r.title)}</div>
+                ${r.description ? `<div class="res-desc">${escapeHtml(r.description)}</div>` : '<div class="res-desc"></div>'}
+                <div class="res-meta">
+                  <span>${new Date(r.createdAt).toLocaleDateString()}</span>
+                  ${sizeStr ? `<span>${sizeStr}</span>` : ''}
+                </div>
+                <div class="res-actions">
+                  ${isFile
+                    ? `<button class="btn btn-primary btn-sm" onclick="window._downloadResource('${r.id}')"><i class="fas fa-download"></i> Download</button>`
+                    : `<a class="btn btn-primary btn-sm" href="${escapeAttr(r.url)}" target="_blank" rel="noopener"><i class="fas fa-external-link-alt"></i> Open Link</a>`}
+                  ${isFile ? `<button class="btn btn-outline btn-sm" data-copy="${escapeAttr(r.fileName||'')}"><i class="fas fa-copy"></i></button>` : ''}
+                </div>
+              </div>
+            `;
+          }).join('')}</div>`;
+        } else {
+          container.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><div class="title">Failed to load</div></div>`;
+        }
+      } catch {
+        container.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><div class="title">Error loading resources</div></div>`;
+      }
+    }
+    document.getElementById('refreshResourcesBtn')?.addEventListener('click', loadClientResources);
+
+    // Download handler
+    window._downloadResource = async function(id) {
+      try {
+        showToast('Preparing download...', 'info', 1500);
+        const res = await apiCall('/api/client/resource/' + id + '/download', 'GET', null, getToken());
+        if (res.success && res.fileData) {
+          const a = document.createElement('a');
+          a.href = res.fileData;
+          a.download = res.fileName || 'resource';
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          showToast('Download started: ' + res.fileName, 'success');
+        } else {
+          showToast(res.message || 'Download failed.', 'error');
+        }
+      } catch (err) { showToast('Error: ' + err.message, 'error'); }
+    };
+
+    // Update credentials
+    const getIp = async (targetId) => {
+      try {
+        const res = await fetch('https://api.ipify.org?format=json');
+        const data = await res.json();
+        const ip = data.ip;
+        if (targetId) { const el = document.getElementById(targetId); if (el) el.value = ip; showToast('IP detected: ' + ip, 'success'); }
+        return ip;
+      } catch { showToast('Could not detect IP.', 'error'); return null; }
+    };
+    document.getElementById('getIpBtn2')?.addEventListener('click', () => getIp('updateIp'));
+
+    // SID cooldown live countdown
+    if (window._sidCooldownInterval) clearInterval(window._sidCooldownInterval);
+    function fmtCountdown(ms) {
+      const totalSec = Math.max(0, Math.ceil(ms / 1000));
+      const h = String(Math.floor(totalSec / 3600)).padStart(2, '0');
+      const m = String(Math.floor((totalSec % 3600) / 60)).padStart(2, '0');
+      const s = String(totalSec % 60).padStart(2, '0');
+      return `${h}:${m}:${s}`;
+    }
+    function refreshSidCooldownUI() {
+      const chip = document.getElementById('sidCooldownChip');
+      const sidBtn = document.getElementById('updateSidBtn');
+      const sidInput = document.getElementById('updateSid');
+      if (!chip || !sidBtn || !sidInput) { clearInterval(window._sidCooldownInterval); return; }
+      const remaining = STATE.user.sidCooldownMs || 0;
+      if (remaining > 0) {
+        chip.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:100px;font-size:11px;font-weight:700;background:rgba(255,255,255,0.08);color:#fff;border:1px solid rgba(255,255,255,0.2);font-family:var(--mono);"><i class="fas fa-clock"></i> ${fmtCountdown(remaining)}</span>`;
+        sidBtn.disabled = true; sidInput.disabled = true;
+        sidInput.placeholder = 'Locked — 1 change per 24h';
+        STATE.user.sidCooldownMs = Math.max(0, remaining - 1000);
+      } else {
+        chip.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:100px;font-size:11px;font-weight:700;background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.28);"><i class="fas fa-check"></i> Ready</span>`;
+        sidBtn.disabled = false; sidInput.disabled = false;
+        sidInput.placeholder = 'Enter new SID';
+        clearInterval(window._sidCooldownInterval);
+      }
+    }
+    refreshSidCooldownUI();
+    window._sidCooldownInterval = setInterval(refreshSidCooldownUI, 1000);
+
+    document.getElementById('updateSidBtn').addEventListener('click', async () => {
+      const sid = $('#updateSid').value.trim();
+      if (!sid) { showToast('Please enter a new SID.', 'error'); return; }
+      const btn = $('#updateSidBtn');
+      btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+      try {
+        const res = await apiCall('/api/client/update-sid', 'POST', { sid }, getToken());
+        if (res.success) {
+          showToast('✅ SID updated! Next change in 24h.', 'success');
+          setUser(res.user); STATE.user = res.user; renderDashboard();
+        } else if (res.cooldown) {
+          setUser(res.user); STATE.user = res.user;
+          showToast(`⏳ SID can be changed once every 24h.`, 'error');
+          refreshSidCooldownUI();
+        } else showToast(res.message || 'Update failed.', 'error');
+      } catch (err) { showToast('Error: ' + err.message, 'error'); }
+      finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-sync"></i> Update SID'; }
+    });
+
+    document.getElementById('updateIpBtn').addEventListener('click', async () => {
+      const ip = $('#updateIp').value.trim();
+      if (!ip) { showToast('Please enter a new IP.', 'error'); return; }
+      const btn = $('#updateIpBtn');
+      btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+      try {
+        const res = await apiCall('/api/client/update-ip', 'POST', { ip }, getToken());
+        if (res.success) { showToast('✅ IP updated!', 'success'); setUser(res.user); STATE.user = res.user; renderDashboard(); }
+        else showToast(res.message || 'Update failed.', 'error');
+      } catch (err) { showToast('Error: ' + err.message, 'error'); }
+      finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-sync"></i> Update IP'; }
+    });
+
+    document.getElementById('updateDiscordBtn').addEventListener('click', async () => {
+      const discord = $('#updateDiscord').value.trim();
+      if (!discord) { showToast('Please enter a Discord ID.', 'error'); return; }
+      const btn = $('#updateDiscordBtn');
+      btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+      try {
+        const res = await apiCall('/api/client/update-discord', 'POST', { discordId: discord }, getToken());
+        if (res.success) { showToast('✅ Discord ID updated!', 'success'); setUser(res.user); STATE.user = res.user; renderDashboard(); }
+        else showToast(res.message || 'Update failed.', 'error');
+      } catch (err) { showToast('Error: ' + err.message, 'error'); }
+      finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-id-badge"></i> Update Discord'; }
+    });
+
+    document.getElementById('renewForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const key = $('#renewKey').value.trim();
+      if (!key) { showToast('Please enter a key.', 'error'); return; }
+      const btn = $('#renewBtn');
+      btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+      try {
+        const res = await apiCall('/api/client/redeem', 'POST', { key, ip: user.ip, sid: user.sid }, getToken());
+        if (res.success) { showToast('✅ Key redeemed!', 'success'); setUser(res.user); STATE.user = res.user; renderDashboard(); }
+        else showToast(res.message || 'Redeem failed.', 'error');
+      } catch (err) { showToast('Error: ' + err.message, 'error'); }
+      finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-key"></i> Redeem'; }
+    });
+  }
+
+  // ============ Utility ============
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/[&<>"']/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[m]));
+  }
+  function escapeAttr(str) { return escapeHtml(str).replace(/"/g, '&quot;'); }
+  function formatBytes(bytes) {
+    if (!bytes || bytes < 1024) return (bytes || 0) + ' B';
+    if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+    return (bytes/(1024*1024)).toFixed(2) + ' MB';
+  }
+
+  // ============ Admin ============
+  function renderAdmin() {
+    const user = STATE.user;
+    if (!user || user.role !== 'admin') { navigate('dashboard'); return; }
+    pageContent.innerHTML = `
+      <div class="page-enter">
+        <div class="section-title reveal">
+          <h2>👑 Admin Panel · <span class="highlight">${user.username}</span></h2>
+          <span style="font-size:13px;color:var(--text-muted);">Manage keys · resources · resellers · users</span>
+        </div>
+        <div class="tabs reveal" id="adminTabs">
+          <button class="tab-btn active" data-tab="admin-keys"><i class="fas fa-key"></i> Keys</button>
+          <button class="tab-btn" data-tab="admin-resources"><i class="fas fa-folder-open"></i> Resources</button>
+          <button class="tab-btn" data-tab="admin-resellers"><i class="fas fa-users-gear"></i> Resellers</button>
+          <button class="tab-btn" data-tab="admin-users"><i class="fas fa-user"></i> Users</button>
+          <button class="tab-btn" data-tab="admin-create"><i class="fas fa-plus"></i> Create</button>
+        </div>
+        <div id="adminTabContent" class="reveal">
+          <div class="tab-pane active" id="admin-keys">
+            <div class="card">
+              <div class="flex-between wrap">
+                <span class="card-title" style="margin:0;"><span class="icon">🔑</span> All Premium Keys</span>
+                <button class="btn btn-sm btn-outline" onclick="window._adminRefreshKeys()"><i class="fas fa-sync"></i> Refresh</button>
+              </div>
+              <div class="table-wrap"><table><thead><tr><th>Key</th><th>Provider</th><th>Duration</th><th>Used By</th><th>Status</th><th>Active</th><th>Actions</th></tr></thead><tbody id="adminKeysBody"><tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Loading...</td></tr></tbody></table></div>
+            </div>
+          </div>
+
+          <div class="tab-pane" id="admin-resources">
+            <div class="grid-2">
+              <div class="card card-glow">
+                <div class="card-title"><span class="icon">📤</span> Publish Resource</div>
+                <div class="card-sub">Upload a file or add a link. Clients see it in their Resources tab.</div>
+                <form id="resourceForm" onsubmit="return false;">
+                  <div class="form-group">
+                    <label>Title</label>
+                    <input class="form-control" id="resTitle" placeholder="e.g. Jellyfish Loader v2.1" required />
+                  </div>
+                  <div class="form-group">
+                    <label>Description (optional)</label>
+                    <textarea class="form-control" id="resDesc" rows="2" placeholder="Short description..." style="resize:vertical;font-family:inherit;"></textarea>
+                  </div>
+                  <div class="form-group">
+                    <label>Type</label>
+                    <select class="form-control" id="resType">
+                      <option value="link">🔗 Link / URL</option>
+                      <option value="file">📎 File Upload</option>
+                    </select>
+                  </div>
+                  <div class="form-group" id="resLinkGroup">
+                    <label>URL</label>
+                    <input class="form-control" id="resUrl" placeholder="https://example.com/download" />
+                  </div>
+                  <div class="form-group" id="resFileGroup" style="display:none;">
+                    <label>File (max 8MB)</label>
+                    <input class="form-control" id="resFile" type="file" style="padding:10px;" />
+                  </div>
+                  <button class="btn btn-primary btn-block" id="resSubmitBtn" type="submit"><i class="fas fa-upload"></i> Publish Resource</button>
+                </form>
+              </div>
+              <div class="card card-glow">
+                <div class="flex-between" style="margin-bottom:14px;">
+                  <div class="card-title" style="margin:0;"><span class="icon">📚</span> Published Resources</div>
+                  <button class="btn btn-outline btn-xs" id="adminRefreshResourcesBtn"><i class="fas fa-sync"></i></button>
+                </div>
+                <div id="adminResourcesList"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-pane" id="admin-resellers">
+            <div class="card">
+              <span class="card-title"><span class="icon">🔄</span> Reseller Accounts</span>
+              <div class="table-wrap"><table><thead><tr><th>Username</th><th>Provider</th><th>Created</th><th>Active</th><th>Actions</th></tr></thead><tbody id="adminResellersBody"><tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Loading...</td></tr></tbody></table></div>
+            </div>
+          </div>
+          <div class="tab-pane" id="admin-users">
+            <div class="card">
+              <span class="card-title"><span class="icon">👤</span> Registered Users</span>
+              <div class="table-wrap"><table><thead><tr><th>Username</th><th>Email</th><th>Provider</th><th>Status</th><th>Key</th><th>Active</th><th>Actions</th></tr></thead><tbody id="adminUsersBody"><tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Loading...</td></tr></tbody></table></div>
+            </div>
+          </div>
+          <div class="tab-pane" id="admin-create">
+            <div class="grid-2">
+              <div class="card">
+                <span class="card-title"><span class="icon">🔑</span> Create Premium Key</span>
+                <form id="adminCreateKeyForm" onsubmit="return false;">
+                  <div class="form-group"><label>Provider Name</label><input class="form-control" id="adminKeyProvider" placeholder="e.g. JELLYFISH PREMIUM" /></div>
+                  <div class="form-group"><label>Duration</label><select class="form-control" id="adminKeyDuration"><option value="1">1 Day</option><option value="3">3 Days</option><option value="7">7 Days</option><option value="30">1 Month</option><option value="lifetime">Lifetime</option></select></div>
+                  <button class="btn btn-primary btn-block" id="adminCreateKeyBtn" type="submit"><i class="fas fa-plus-circle"></i> Generate Key</button>
+                </form>
+              </div>
+              <div class="card">
+                <span class="card-title"><span class="icon">🔄</span> Create Reseller</span>
+                <form id="adminCreateResellerForm" onsubmit="return false;">
+                  <div class="form-group"><label>Username</label><input class="form-control" id="adminResellerUser" placeholder="Reseller username" /></div>
+                  <div class="form-group"><label>Password</label><input class="form-control" id="adminResellerPass" type="password" placeholder="Password" /></div>
+                  <div class="form-group"><label>Provider Name</label><input class="form-control" id="adminResellerProvider" placeholder="Provider name" /></div>
+                  <button class="btn btn-primary btn-block" id="adminCreateResellerBtn" type="submit"><i class="fas fa-user-plus"></i> Create Reseller</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Tabs
+    const tabBtns = $$('#adminTabs .tab-btn');
+    const moveAdminIndicator = initTabIndicator('adminTabs');
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        moveAdminIndicator(btn);
+        const target = btn.dataset.tab;
+        $$('#adminTabContent .tab-pane').forEach(p => p.classList.remove('active'));
+        document.getElementById(target)?.classList.add('active');
+        if (target === 'admin-keys') loadAdminKeys();
+        if (target === 'admin-resources') loadAdminResources();
+        if (target === 'admin-resellers') loadAdminResellers();
+        if (target === 'admin-users') loadAdminUsers();
+      });
+    });
+
+    loadAdminKeys();
+
+    // Resource form toggle
+    const resType = document.getElementById('resType');
+    const resLinkGroup = document.getElementById('resLinkGroup');
+    const resFileGroup = document.getElementById('resFileGroup');
+    resType.addEventListener('change', () => {
+      const isFile = resType.value === 'file';
+      resLinkGroup.style.display = isFile ? 'none' : 'block';
+      resFileGroup.style.display = isFile ? 'block' : 'none';
+    });
+
+    // Resource submit
+    document.getElementById('resourceForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const title = $('#resTitle').value.trim();
+      const description = $('#resDesc').value.trim();
+      const type = $('#resType').value;
+      if (!title) { showToast('Title is required.', 'error'); return; }
+
+      let payload = { title, description, type };
+      if (type === 'link') {
+        const url = $('#resUrl').value.trim();
+        if (!url) { showToast('URL is required.', 'error'); return; }
+        payload.url = url;
+      } else {
+        const fileInput = document.getElementById('resFile');
+        const file = fileInput.files[0];
+        if (!file) { showToast('Please select a file.', 'error'); return; }
+        if (file.size > 8 * 1024 * 1024) { showToast('File too large. Max 8MB.', 'error'); return; }
+        const reader = new FileReader();
+        const fileData = await new Promise((resolve, reject) => {
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+        payload.fileName = file.name;
+        payload.fileData = fileData;
+        payload.fileSize = file.size;
+        payload.mimeType = file.type || 'application/octet-stream';
+      }
+
+      const btn = $('#resSubmitBtn');
+      btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Publishing...';
+      try {
+        const res = await apiCall('/api/admin/upload-resource', 'POST', payload, getToken());
+        if (res.success) {
+          showToast('✅ Resource published!', 'success');
+          $('#resourceForm').reset();
+          resLinkGroup.style.display = 'block';
+          resFileGroup.style.display = 'none';
+          loadAdminResources();
+        } else showToast(res.message || 'Failed to publish.', 'error');
+      } catch (err) { showToast('Error: ' + err.message, 'error'); }
+      finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-upload"></i> Publish Resource'; }
+    });
+
+    document.getElementById('adminRefreshResourcesBtn').addEventListener('click', loadAdminResources);
+
+    // Create key
+    document.getElementById('adminCreateKeyForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const provider = $('#adminKeyProvider').value.trim();
+      const duration = $('#adminKeyDuration').value;
+      if (!provider) { showToast('Provider name is required.', 'error'); return; }
+      const btn = $('#adminCreateKeyBtn');
+      btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+      try {
+        const res = await apiCall('/api/admin/create-key', 'POST', { provider, duration }, getToken());
+        if (res.success) { showToast('✅ Key created: ' + res.key, 'success'); loadAdminKeys(); $('#adminKeyProvider').value = ''; }
+        else showToast(res.message || 'Failed.', 'error');
+      } catch (err) { showToast('Error: ' + err.message, 'error'); }
+      finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-plus-circle"></i> Generate Key'; }
+    });
+
+    // Create reseller
+    document.getElementById('adminCreateResellerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = $('#adminResellerUser').value.trim();
+      const password = $('#adminResellerPass').value.trim();
+      const provider = $('#adminResellerProvider').value.trim();
+      if (!username || !password || !provider) { showToast('All fields required.', 'error'); return; }
+      if (password.length < 6) { showToast('Password min 6 chars.', 'error'); return; }
+      const btn = $('#adminCreateResellerBtn');
+      btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+      try {
+        const res = await apiCall('/api/admin/create-reseller', 'POST', { username, password, provider }, getToken());
+        if (res.success) {
+          showToast('✅ Reseller created!', 'success'); loadAdminResellers();
+          $('#adminResellerUser').value = ''; $('#adminResellerPass').value = ''; $('#adminResellerProvider').value = '';
+        } else showToast(res.message || 'Failed.', 'error');
+      } catch (err) { showToast('Error: ' + err.message, 'error'); }
+      finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-user-plus"></i> Create Reseller'; }
+    });
+  }
+
+  // ============ Admin Loaders ============
+  async function loadAdminKeys() {
+    const tbody = document.getElementById('adminKeysBody');
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Loading...</td></tr>';
+    try {
+      const res = await apiCall('/api/admin/keys', 'GET', null, getToken());
+      if (res.success && res.keys) {
+        if (res.keys.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">No keys.</td></tr>'; return; }
+        tbody.innerHTML = res.keys.map(k => `
+          <tr>
+            <td class="key-cell">${escapeHtml(k.key)}</td>
+            <td>${escapeHtml(k.provider || '—')}</td>
+            <td>${escapeHtml(String(k.duration))}</td>
+            <td>${escapeHtml(k.usedBy || '—')}</td>
+            <td>${k.isUsed ? '✅ Used' : '🟢 Available'}</td>
+            <td>${k.active !== undefined ? (k.active ? '🟢 Active' : '🔴 Banned') : '🟢 Active'}</td>
+            <td>
+              <button class="btn btn-sm ${k.active ? 'btn-danger' : 'btn-success'}" onclick="window._toggleKeyActive('${escapeAttr(k.key)}')">${k.active ? 'Ban' : 'Unban'}</button>
+              <button class="btn btn-sm btn-danger" onclick="window._deleteKey('${escapeAttr(k.key)}')">Delete</button>
+            </td>
+          </tr>
+        `).join('');
+      } else tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Failed.</td></tr>';
+    } catch { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Error.</td></tr>'; }
+  }
+
+  window._toggleKeyActive = async function(key) {
+    try {
+      const res = await apiCall('/api/admin/toggle-key-active', 'POST', { key }, getToken());
+      if (res.success) { showToast(res.message, 'success', 5000); loadAdminKeys(); }
+      else showToast(res.message || 'Failed.', 'error');
+    } catch (err) { showToast('Error: ' + err.message, 'error'); }
+  };
+
+  window._deleteKey = async function(key) {
+    if (!confirm(`Delete key "${key}"?\n\n⚠️ Any client bound to this key will lose access immediately.`)) return;
+    try {
+      const res = await apiCall('/api/admin/delete-key', 'DELETE', { key }, getToken());
+      if (res.success) { showToast(res.message, 'success', 5000); loadAdminKeys(); }
+      else showToast(res.message || 'Failed.', 'error');
+    } catch (err) { showToast('Error: ' + err.message, 'error'); }
+  };
+
+  async function loadAdminResources() {
+    const list = document.getElementById('adminResourcesList');
+    if (!list) return;
+    list.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i></div>';
+    try {
+      const res = await apiCall('/api/admin/resources', 'GET', null, getToken());
+      if (res.success && res.resources) {
+        if (res.resources.length === 0) {
+          list.innerHTML = `<div class="empty-state"><i class="fas fa-folder-open"></i><div class="title">No resources yet</div></div>`;
+          return;
+        }
+        list.innerHTML = res.resources.map(r => `
+          <div style="padding:12px 0;border-bottom:1px solid var(--hairline);display:flex;align-items:center;gap:12px;">
+            <div class="res-icon" style="width:34px;height:34px;font-size:14px;flex-shrink:0;">
+              <i class="fas ${r.type === 'file' ? 'fa-file' : 'fa-link'}"></i>
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:13px;font-weight:600;color:#fff;word-break:break-word;">${escapeHtml(r.title)}</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">
+                ${r.type === 'file' ? '📎 ' + escapeHtml(r.fileName || 'file') + ' · ' + formatBytes(r.fileSize) : '🔗 Link'} · ${new Date(r.createdAt).toLocaleDateString()}
+              </div>
+            </div>
+            <button class="btn btn-sm btn-danger" onclick="window._deleteResource('${r.id}')"><i class="fas fa-trash"></i></button>
+          </div>
+        `).join('');
+      } else list.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><div class="title">Failed to load</div></div>`;
+    } catch { list.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><div class="title">Error</div></div>`; }
+  }
+
+  window._deleteResource = async function(id) {
+    if (!confirm('Delete this resource? This cannot be undone.')) return;
+    try {
+      const res = await apiCall('/api/admin/delete-resource', 'DELETE', { id }, getToken());
+      if (res.success) { showToast('Resource deleted.', 'success'); loadAdminResources(); }
+      else showToast(res.message || 'Failed.', 'error');
+    } catch (err) { showToast('Error: ' + err.message, 'error'); }
+  };
+
+  async function loadAdminResellers() {
+    const tbody = document.getElementById('adminResellersBody');
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Loading...</td></tr>';
+    try {
+      const res = await apiCall('/api/admin/resellers', 'GET', null, getToken());
+      if (res.success && res.resellers) {
+        if (res.resellers.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">No resellers.</td></tr>'; return; }
+        tbody.innerHTML = res.resellers.map(r => `
+          <tr>
+            <td>${escapeHtml(r.username)}</td>
+            <td>${escapeHtml(r.provider || '—')}</td>
+            <td style="font-size:11px;color:var(--text-muted);">${new Date(r.createdAt).toLocaleDateString()}</td>
+            <td>${r.active !== undefined ? (r.active ? '🟢 Active' : '🔴 Banned') : '🟢 Active'}</td>
+            <td>
+              <button class="btn btn-sm ${r.active ? 'btn-danger' : 'btn-success'}" onclick="window._toggleResellerActive('${escapeAttr(r.username)}')">${r.active ? 'Ban' : 'Unban'}</button>
+              <button class="btn btn-sm btn-danger" onclick="window._deleteReseller('${escapeAttr(r.username)}')">Delete</button>
+            </td>
+          </tr>
+        `).join('');
+      } else tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Failed.</td></tr>';
+    } catch { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Error.</td></tr>'; }
+  }
+
+  window._toggleResellerActive = async function(username) {
+    try {
+      const res = await apiCall('/api/admin/toggle-reseller-active', 'POST', { username }, getToken());
+      if (res.success) { showToast(res.message, 'success'); loadAdminResellers(); }
+      else showToast(res.message || 'Failed.', 'error');
+    } catch (err) { showToast('Error: ' + err.message, 'error'); }
+  };
+
+  window._deleteReseller = async function(username) {
+    if (!confirm(`Delete reseller "${username}"?`)) return;
+    try {
+      const res = await apiCall('/api/admin/delete-reseller', 'DELETE', { username }, getToken());
+      if (res.success) { showToast('Reseller deleted.', 'success'); loadAdminResellers(); }
+      else showToast(res.message || 'Failed.', 'error');
+    } catch (err) { showToast('Error: ' + err.message, 'error'); }
+  };
+
+  async function loadAdminUsers() {
+    const tbody = document.getElementById('adminUsersBody');
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Loading...</td></tr>';
+    try {
+      const res = await apiCall('/api/admin/users', 'GET', null, getToken());
+      if (res.success && res.users) {
+        if (res.users.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">No users.</td></tr>'; return; }
+        tbody.innerHTML = res.users.map(u => `
+          <tr>
+            <td>${escapeHtml(u.username)}</td>
+            <td>${escapeHtml(u.email || '—')}</td>
+            <td>${escapeHtml(u.provider || '—')}</td>
+            <td>${u.premiumStatus === 'active' ? '🟢 Active' : (u.premiumStatus === 'expired' ? '🟠 Expired' : '🔴 Inactive')}</td>
+            <td style="font-size:11px;font-family:var(--mono);">${escapeHtml(u.premiumKey || '—')}</td>
+            <td>${u.active !== undefined ? (u.active ? '🟢 Active' : '🔴 Banned') : '🟢 Active'}</td>
+            <td>
+              ${u.role === 'admin' ? '—' : `<button class="btn btn-sm ${u.active ? 'btn-danger' : 'btn-success'}" onclick="window._toggleUserActive('${escapeAttr(u.username)}')">${u.active ? 'Ban' : 'Unban'}</button>`}
+            </td>
+          </tr>
+        `).join('');
+      } else tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Failed.</td></tr>';
+    } catch { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Error.</td></tr>'; }
+  }
+
+  window._toggleUserActive = async function(username) {
+    try {
+      const res = await apiCall('/api/admin/toggle-user-active', 'POST', { username }, getToken());
+      if (res.success) { showToast(res.message, 'success'); loadAdminUsers(); }
+      else showToast(res.message || 'Failed.', 'error');
+    } catch (err) { showToast('Error: ' + err.message, 'error'); }
+  };
+
+  window._adminRefreshKeys = loadAdminKeys;
+
+  // ============ Reseller ============
+  function renderReseller() {
+    const user = STATE.user;
+    if (!user || user.role !== 'reseller') { navigate('dashboard'); return; }
+    pageContent.innerHTML = `
+      <div class="page-enter">
+        <div class="section-title reveal">
+          <h2>🔄 Reseller Panel · <span class="highlight">${user.username}</span></h2>
+          <span style="font-size:13px;color:var(--text-muted);">Provider: ${user.provider || '—'}</span>
+        </div>
+        <div class="tabs reveal" id="resellerTabs">
+          <button class="tab-btn active" data-tab="reseller-keys"><i class="fas fa-key"></i> My Keys</button>
+          <button class="tab-btn" data-tab="reseller-clients"><i class="fas fa-user"></i> My Clients</button>
+          <button class="tab-btn" data-tab="reseller-create"><i class="fas fa-plus"></i> Create Key</button>
+        </div>
+        <div id="resellerTabContent" class="reveal">
+          <div class="tab-pane active" id="reseller-keys">
+            <div class="card card-glow">
+              <div class="flex-between wrap">
+                <span class="card-title" style="margin:0;"><span class="icon">🔑</span> Keys I Created</span>
+                <button class="btn btn-sm btn-outline" onclick="window._resellerRefreshKeys()"><i class="fas fa-sync"></i> Refresh</button>
+              </div>
+              <div class="table-wrap"><table><thead><tr><th>Key</th><th>Duration</th><th>Used</th><th>Active</th><th>Created</th><th>Actions</th></tr></thead><tbody id="resellerKeysBody"><tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Loading...</td></tr></tbody></table></div>
+            </div>
+          </div>
+          <div class="tab-pane" id="reseller-clients">
+            <div class="card card-glow">
+              <div class="flex-between wrap">
+                <span class="card-title" style="margin:0;"><span class="icon">👤</span> Clients Under My Provider</span>
+                <button class="btn btn-sm btn-outline" onclick="window._resellerRefreshClients()"><i class="fas fa-sync"></i> Refresh</button>
+              </div>
+              <div class="table-wrap"><table><thead><tr><th>Username</th><th>Email</th><th>Status</th><th>SID</th><th>Active</th><th>Actions</th></tr></thead><tbody id="resellerClientsBody"><tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Loading...</td></tr></tbody></table></div>
+            </div>
+          </div>
+          <div class="tab-pane" id="reseller-create">
+            <div class="card card-glow" style="max-width:460px;">
+              <span class="card-title"><span class="icon">🔑</span> Create Reseller Key</span>
+              <form id="resellerCreateKeyForm" onsubmit="return false;">
+                <div class="form-group"><label>Duration</label><select class="form-control" id="resellerKeyDuration"><option value="1">1 Day</option><option value="3">3 Days</option><option value="7">7 Days</option><option value="30">1 Month</option><option value="lifetime">Lifetime</option></select></div>
+                <button class="btn btn-primary btn-block" id="resellerCreateKeyBtn" type="submit"><i class="fas fa-plus-circle"></i> Generate Key</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    const tabBtns = $$('#resellerTabs .tab-btn');
+    const moveResellerIndicator = initTabIndicator('resellerTabs');
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        moveResellerIndicator(btn);
+        const target = btn.dataset.tab;
+        $$('#resellerTabContent .tab-pane').forEach(p => p.classList.remove('active'));
+        document.getElementById(target)?.classList.add('active');
+        if (target === 'reseller-keys') loadResellerKeys();
+        if (target === 'reseller-clients') loadResellerClients();
+      });
+    });
+    loadResellerKeys();
+    document.getElementById('resellerCreateKeyForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const duration = $('#resellerKeyDuration').value;
+      const btn = $('#resellerCreateKeyBtn');
+      btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+      try {
+        const res = await apiCall('/api/reseller/create-key', 'POST', { duration }, getToken());
+        if (res.success) { showToast('✅ Key created: ' + res.key, 'success'); loadResellerKeys(); }
+        else showToast(res.message || 'Failed.', 'error');
+      } catch (err) { showToast('Error: ' + err.message, 'error'); }
+      finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-plus-circle"></i> Generate Key'; }
+    });
+  }
+
+  async function loadResellerKeys() {
+    const tbody = document.getElementById('resellerKeysBody');
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Loading...</td></tr>';
+    try {
+      const res = await apiCall('/api/reseller/keys', 'GET', null, getToken());
+      if (res.success && res.keys) {
+        if (res.keys.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">No keys created yet.</td></tr>'; return; }
+        tbody.innerHTML = res.keys.map(k => `
+          <tr>
+            <td class="key-cell">${escapeHtml(k.key)}</td>
+            <td>${escapeHtml(String(k.duration))}</td>
+            <td>${k.isUsed ? '✅ Used by ' + escapeHtml(k.usedBy || '—') : '🟢 Available'}</td>
+            <td>${k.active !== undefined ? (k.active ? '🟢 Active' : '🔴 Banned') : '🟢 Active'}</td>
+            <td style="font-size:11px;color:var(--text-muted);">${new Date(k.createdAt).toLocaleDateString()}</td>
+            <td>
+              <button class="btn btn-sm ${k.active ? 'btn-danger' : 'btn-success'}" onclick="window._resellerToggleKey('${escapeAttr(k.key)}')">${k.active ? 'Ban' : 'Unban'}</button>
+              <button class="btn btn-sm btn-outline" onclick="window._resellerResetKey('${escapeAttr(k.key)}')" ${k.isUsed ? '' : 'disabled'}>Reset</button>
+              <button class="btn btn-sm btn-danger" onclick="window._resellerDeleteKey('${escapeAttr(k.key)}')">Delete</button>
+            </td>
+          </tr>
+        `).join('');
+      } else tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Failed.</td></tr>';
+    } catch { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Error.</td></tr>'; }
+  }
+
+  window._resellerToggleKey = async function(key) {
+    try {
+      const res = await apiCall('/api/reseller/toggle-key-active', 'POST', { key }, getToken());
+      if (res.success) { showToast(res.message, 'success', 5000); loadResellerKeys(); }
+      else showToast(res.message || 'Failed.', 'error');
+    } catch (err) { showToast('Error: ' + err.message, 'error'); }
+  };
+
+  window._resellerResetKey = async function(key) {
+    if (!confirm(`Reset key "${key}"? The client who used it will need to redeem again.`)) return;
+    try {
+      const res = await apiCall('/api/reseller/reset-key', 'POST', { key }, getToken());
+      if (res.success) { showToast(res.message, 'success'); loadResellerKeys(); }
+      else showToast(res.message || 'Failed.', 'error');
+    } catch (err) { showToast('Error: ' + err.message, 'error'); }
+  };
+
+  window._resellerDeleteKey = async function(key) {
+    if (!confirm(`Delete key "${key}"?\n\n⚠️ Bound client will lose access.`)) return;
+    try {
+      const res = await apiCall('/api/reseller/delete-key', 'DELETE', { key }, getToken());
+      if (res.success) { showToast('Key deleted.', 'success'); loadResellerKeys(); }
+      else showToast(res.message || 'Failed.', 'error');
+    } catch (err) { showToast('Error: ' + err.message, 'error'); }
+  };
+
+  window._resellerRefreshKeys = loadResellerKeys;
+
+  async function loadResellerClients() {
+    const tbody = document.getElementById('resellerClientsBody');
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Loading...</td></tr>';
+    try {
+      const res = await apiCall('/api/reseller/clients', 'GET', null, getToken());
+      if (res.success && res.clients) {
+        if (res.clients.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">No clients yet.</td></tr>'; return; }
+        tbody.innerHTML = res.clients.map(c => `
+          <tr>
+            <td>${escapeHtml(c.username)}</td>
+            <td>${escapeHtml(c.email || '—')}</td>
+            <td>${c.premiumStatus === 'active' ? '🟢 Active' : (c.premiumStatus === 'expired' ? '🟠 Expired' : '🔴 Inactive')}</td>
+            <td style="font-size:11px;font-family:var(--mono);">${escapeHtml(c.sid || '—')}</td>
+            <td>${c.active !== undefined ? (c.active ? '🟢 Active' : '🔴 Banned') : '🟢 Active'}</td>
+            <td>
+              <button class="btn btn-sm ${c.active ? 'btn-danger' : 'btn-success'}" onclick="window._resellerToggleClient('${escapeAttr(c.username)}')">${c.active ? 'Ban' : 'Unban'}</button>
+              <button class="btn btn-sm btn-outline" onclick="window._resellerResetClientSid('${escapeAttr(c.username)}')">Reset SID</button>
+              <button class="btn btn-sm btn-danger" onclick="window._resellerDeleteClient('${escapeAttr(c.username)}')">Delete</button>
+            </td>
+          </tr>
+        `).join('');
+      } else tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Failed.</td></tr>';
+    } catch { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Error.</td></tr>'; }
+  }
+
+  window._resellerToggleClient = async function(username) {
+    try {
+      const res = await apiCall('/api/reseller/toggle-client-active', 'POST', { username }, getToken());
+      if (res.success) { showToast(res.message, 'success'); loadResellerClients(); }
+      else showToast(res.message || 'Failed.', 'error');
+    } catch (err) { showToast('Error: ' + err.message, 'error'); }
+  };
+
+  window._resellerResetClientSid = async function(username) {
+    if (!confirm(`Reset SID for "${username}"?`)) return;
+    try {
+      const res = await apiCall('/api/reseller/reset-client-sid', 'POST', { username }, getToken());
+      if (res.success) { showToast(res.message, 'success'); loadResellerClients(); }
+      else showToast(res.message || 'Failed.', 'error');
+    } catch (err) { showToast('Error: ' + err.message, 'error'); }
+  };
+
+  window._resellerDeleteClient = async function(username) {
+    if (!confirm(`Delete client "${username}"?`)) return;
+    try {
+      const res = await apiCall('/api/reseller/delete-client', 'DELETE', { username }, getToken());
+      if (res.success) { showToast('Client deleted.', 'success'); loadResellerClients(); }
+      else showToast(res.message || 'Failed.', 'error');
+    } catch (err) { showToast('Error: ' + err.message, 'error'); }
+  };
+
+  window._resellerRefreshClients = loadResellerClients;
+
+  // ============ Logout / Nav ============
+  window._logout = async function() {
+    const token = getToken();
+    if (token) { try { await apiCall('/api/auth/logout', 'POST', null, token); } catch {} }
+    setToken(null); setUser(null); STATE.user = null;
+    showToast('Logged out.', 'info'); navigate('login');
+  };
+
+  window._navigate = function(page) {
+    if (page === 'login' || page === 'register') {
+      if (isLoggedIn()) { showToast('You are already logged in.', 'info'); return; }
+      navigate(page); return;
+    }
+    if (!isLoggedIn()) { showToast('Please login first.', 'error'); navigate('login'); return; }
+    const role = getRole();
+    if (page === 'admin' && role !== 'admin') { showToast('Admin access only.', 'error'); return; }
+    if (page === 'reseller' && role !== 'reseller' && role !== 'admin') { showToast('Reseller access only.', 'error'); return; }
+    navigate(page);
+  };
+
+  document.getElementById('brandLink').addEventListener('click', (e) => {
+    e.preventDefault();
+    if (!isLoggedIn()) { navigate('login'); return; }
+    const role = getRole();
+    navigate(role === 'admin' ? 'admin' : role === 'reseller' ? 'reseller' : 'dashboard');
+  });
+
+  // ============ Init ============
+  function init() {
+    const token = getToken();
+    const user = getUser();
+    if (token && user) {
+      STATE.token = token; STATE.user = user;
+      const role = user.role || 'client';
+      if (role === 'admin') navigate('admin');
+      else if (role === 'reseller') navigate('reseller');
+      else navigate('dashboard');
+    } else {
+      navigate('login');
+    }
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
